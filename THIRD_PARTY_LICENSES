@@ -1,0 +1,105 @@
+Third-Party Licenses
+====================
+
+This project uses the following open-source packages. Each package retains its
+own copyright and license. Full license texts are available in the linked
+repositories or via `flutter pub deps`.
+
+--------------------------------------------------------------------------------
+
+archive ^4.0.0
+  License: MIT
+  https://pub.dev/packages/archive
+
+camera ^0.10.6
+  License: BSD-3-Clause
+  https://pub.dev/packages/camera
+
+ffmpeg_kit_flutter_new ^4.1.0
+  License: GNU Lesser General Public License v3.0 (LGPL-3.0)
+  https://pub.dev/packages/ffmpeg_kit_flutter_new
+  NOTE: This package wraps FFmpeg, which is licensed under LGPL v3.0 in its
+  standard build. Pursuant to LGPL requirements, users have the right to
+  replace the FFmpeg library with a modified version. Source code for the
+  FFmpeg build used is available from the package maintainer.
+
+file_picker ^10.0.0
+  License: MIT
+  https://pub.dev/packages/file_picker
+
+flutter_local_notifications ^18.0.0
+  License: BSD-3-Clause
+  https://pub.dev/packages/flutter_local_notifications
+
+geolocator ^13.0.2
+  License: MIT
+  https://pub.dev/packages/geolocator
+
+google_fonts ^7.0.2
+  License: Apache-2.0
+  https://pub.dev/packages/google_fonts
+  NOTE: Fonts downloaded at runtime are subject to their individual licenses
+  (typically SIL Open Font License). Runtime font fetching is disabled in
+  this app; fonts are loaded from bundled assets.
+
+google_mlkit_face_detection ^0.12.0
+  License: MIT
+  https://pub.dev/packages/google_mlkit_face_detection
+
+home_widget ^0.6.0
+  License: MIT
+  https://pub.dev/packages/home_widget
+
+image_picker ^1.0.7
+  License: Apache-2.0
+  https://pub.dev/packages/image_picker
+
+intl ^0.20.2
+  License: BSD-3-Clause
+  https://pub.dev/packages/intl
+
+media_scanner ^2.1.0
+  License: MIT
+  https://pub.dev/packages/media_scanner
+
+path_provider ^2.1.2
+  License: BSD-3-Clause
+  https://pub.dev/packages/path_provider
+
+permission_handler ^12.0.1
+  License: MIT
+  https://pub.dev/packages/permission_handler
+
+photo_manager ^3.6.0
+  License: Apache-2.0
+  https://pub.dev/packages/photo_manager
+
+share_plus ^10.0.0
+  License: BSD-3-Clause
+  https://pub.dev/packages/share_plus
+
+shared_preferences ^2.2.2
+  License: BSD-3-Clause
+  https://pub.dev/packages/shared_preferences
+
+tflite_flutter ^0.11.0
+  License: Apache-2.0
+  https://pub.dev/packages/tflite_flutter
+
+timezone ^0.10.0
+  License: MIT
+  https://pub.dev/packages/timezone
+
+uuid ^4.3.3
+  License: MIT
+  https://pub.dev/packages/uuid
+
+video_player ^2.8.2
+  License: BSD-3-Clause
+  https://pub.dev/packages/video_player
+
+--------------------------------------------------------------------------------
+
+All listed licenses (MIT, BSD-3-Clause, Apache-2.0, LGPL-3.0) are compatible
+with this project's MIT License. LGPL-3.0 allows use in non-copyleft software
+subject to the attribution and user-modification rights noted above.

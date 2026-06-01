@@ -1,0 +1,72 @@
+name: one_second_a_day
+description: Capture one second of video every day. Retro aesthetic, local-first.
+publish_to: 'none'
+version: 1.3.0+4
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Camera & Media
+  camera: ^0.10.6
+  video_player: ^2.8.2
+  image_picker: ^1.0.7
+  media_scanner: ^2.1.0
+  photo_manager: ^3.6.0
+  
+  # Video Processing
+  ffmpeg_kit_flutter_new: ^4.1.0
+  
+  # File & Storage
+  file_picker: ^10.0.0
+  path_provider: ^2.1.2
+  shared_preferences: ^2.2.2
+  
+  # Geolocation
+  geolocator: ^13.0.2
+
+  # Face Recognition
+  google_mlkit_face_detection: ^0.12.0
+  tflite_flutter: ^0.11.0
+
+  # Notifications
+  flutter_local_notifications: ^18.0.0
+  timezone: ^0.10.0
+
+  # Backup & Sharing
+  archive: ^4.0.0
+  share_plus: ^10.0.0
+
+  # Home Screen Widget
+  home_widget: ^0.6.0
+
+  # UI
+  google_fonts: ^7.0.2
+  permission_handler: ^12.0.1
+  intl: ^0.20.2
+  uuid: ^4.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/icons/
+    - assets/models/
+    - assets/data/
+    - assets/fonts/
+  
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icons/app_icon_foreground.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"

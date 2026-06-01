@@ -1,0 +1,58 @@
+name: Deploy PWA to Cloudflare Pages
+
+# Replaces the GitHub Pages workflow once Cloudflare Pages is configured.
+# Required secrets in repo settings:
+#   CLOUDFLARE_API_TOKEN — API token with Cloudflare Pages edit permissions
+#   CLOUDFLARE_ACCOUNT_ID — your Cloudflare account ID
+#
+# Cloudflare Pages project setup:
+#   Project name: video-journal-pwa
+#   Custom domain: videojournal.[C3_DOMAIN].org
+#   Build command: (handled by this workflow — leave blank in dashboard)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - '.github/workflows/deploy-pwa-cloudflare.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build Flutter web + Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: .
+        run: flutter pub get
+
+      - name: Build web (release)
+        working-directory: .
+        # No --base-href needed: Cloudflare Pages serves from subdomain root
+        run: flutter build web --release
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: video-journal-pwa
+          directory: build/web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # Preview deployments on PRs; production deployment on main
+          branch: ${{ github.ref_name }}
