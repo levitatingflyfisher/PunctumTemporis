@@ -1,0 +1,121 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="[C3_NAME]"
+  description="[C3_NAME] builds free, open-source apps for families. No accounts, no tracking, no fees."
+>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <p class="section-label" style="color:#c8a060;">Family Apps</p>
+    <h1>Free tools for families,<br />built with privacy in mind.</h1>
+    <p class="tagline">
+      [C3_NAME] is a 501(c)&#8203;(3) nonprofit that develops and distributes
+      open-source apps for families. No accounts. No tracking. No fees.
+    </p>
+    <div class="btn-group">
+      <a href="/apps" class="btn btn-primary">Browse Apps</a>
+      <a href="/about" class="btn btn-outline">About Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- App showcase -->
+<section class="section">
+  <div class="container">
+    <p class="section-label">Our Apps</p>
+    <h2>Apps designed for real family life.</h2>
+    <p style="color:var(--color-text-muted);max-width:580px;">
+      Every app is free, open source, and stores your data on your device.
+      We are not in the data business.
+    </p>
+
+    <div class="card-grid" style="margin-top:2.5rem;">
+      <div class="card">
+        <p class="section-label" style="margin-bottom:0.5rem;">Video Journal</p>
+        <h3><a href="/apps/video-journal" style="color:var(--color-navy);text-decoration:none;">One Second A Day</a></h3>
+        <p>
+          Capture one second of video every day and compile them into
+          montage videos. Retro aesthetic, local-first, no cloud required.
+        </p>
+        <div style="margin-top:1.25rem;display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
+          <span class="badge badge-stable">Android</span>
+          <span class="badge badge-beta">iOS PWA</span>
+          <a href="/apps/video-journal" style="margin-left:auto;font-size:0.9rem;">Learn more &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Placeholder for future apps -->
+      <div class="card" style="border-style:dashed;background:var(--color-bg-alt);">
+        <p class="section-label" style="margin-bottom:0.5rem;color:var(--color-text-muted);">Coming Soon</p>
+        <h3 style="color:var(--color-text-muted);">More Apps</h3>
+        <p>
+          We are building more tools for families.
+          <a href="/contact">Get in touch</a> if you have an idea or want to contribute.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Values -->
+<section class="section section-alt">
+  <div class="container">
+    <p class="section-label">Our Principles</p>
+    <h2>Why we build the way we do.</h2>
+
+    <div class="card-grid" style="margin-top:2rem;">
+      <div class="card">
+        <h3>Local-first data</h3>
+        <p>
+          Your family's photos, videos, and records stay on your device.
+          We do not have servers that store your data — because we do not
+          want the liability, and more importantly, you do not want the risk.
+        </p>
+      </div>
+      <div class="card">
+        <h3>No accounts required</h3>
+        <p>
+          Every app works immediately on install with no sign-up, no email,
+          and no subscription. You should not need to hand over personal
+          information to use a baby tracker.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Open source, always</h3>
+        <p>
+          Every line of code is publicly auditable. If we ever compromised
+          on privacy or added tracking, anyone could see it. Transparency is
+          the accountability mechanism.
+        </p>
+      </div>
+      <div class="card">
+        <h3>Free, because families matter</h3>
+        <p>
+          These apps are funded by grants and donations to our 501(c)(3)
+          nonprofit. We measure success by families served, not revenue.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="content" style="text-align:center;">
+    <h2>Built for families like yours.</h2>
+    <p style="color:var(--color-text-muted);margin-bottom:2rem;">
+      Every app we publish is free, open source, and designed with
+      privacy-conscious families in mind. No ads, no subscriptions, no surprises.
+    </p>
+    <div class="btn-group">
+      <a href="/apps" class="btn btn-primary">See All Apps</a>
+      <a href="/about" class="btn btn-outline" style="color:var(--color-text);border-color:var(--color-border);">Learn About [C3_NAME]</a>
+    </div>
+  </div>
+</section>
+
+</Layout>

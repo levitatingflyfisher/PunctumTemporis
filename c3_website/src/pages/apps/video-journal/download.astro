@@ -1,0 +1,216 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const version = '1.1.0';
+const releaseDate = '2026-02-26';
+const minAndroid = 'Android 7.0 (API 24)';
+---
+
+<Layout
+  title="Download — One Second A Day"
+  description="Download One Second A Day for Android (Google Play or direct APK) or install the iOS PWA."
+>
+
+<section class="hero" style="padding:3rem 1.5rem;">
+  <div class="container">
+    <p class="section-label" style="color:#c8a060;">Download</p>
+    <h1>One Second A Day</h1>
+    <p class="tagline" style="font-size:1rem;">
+      Version {version} &nbsp;&middot;&nbsp; Released {releaseDate}
+      &nbsp;&middot;&nbsp; Requires {minAndroid}
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- Android: Google Play -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h2 style="font-size:1.2rem;margin-bottom:0.5rem;">Android &mdash; Google Play</h2>
+      <p style="color:var(--color-text-muted);margin-bottom:1.25rem;">
+        Install via Google Play for automatic updates and the simplest setup.
+      </p>
+      <a
+        href="https://play.google.com/store/apps/details?id=org.[C3_DOMAIN].onesecondaday"
+        class="btn btn-primary"
+      >
+        Get it on Google Play
+      </a>
+    </div>
+
+    <!-- Android: Direct APK -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h2 style="font-size:1.2rem;margin-bottom:0.5rem;">Android &mdash; Direct APK</h2>
+      <p style="color:var(--color-text-muted);margin-bottom:1.25rem;">
+        Prefer to skip Google Play? Download the APK directly. No Google account required.
+        We offer three ABI-split builds &mdash; download the one matching your device.
+        If unsure, arm64-v8a covers most phones made after 2015.
+      </p>
+
+      <table class="download-table">
+        <thead>
+          <tr>
+            <th>Architecture</th>
+            <th>Who it&rsquo;s for</th>
+            <th>Size</th>
+            <th>Download</th>
+            <th>SHA256</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>arm64-v8a</strong></td>
+            <td>Most modern phones (64-bit)</td>
+            <td>~98 MB</td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-arm64-v8a.apk">
+                Download
+              </a>
+            </td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-arm64-v8a.apk.sha256">
+                SHA256
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>armeabi-v7a</strong></td>
+            <td>Older or budget Android phones (32-bit)</td>
+            <td>~94 MB</td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-armeabi-v7a.apk">
+                Download
+              </a>
+            </td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-armeabi-v7a.apk.sha256">
+                SHA256
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>x86_64</strong></td>
+            <td>Android emulators / Intel Chromebooks</td>
+            <td>~128 MB</td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-x86_64.apk">
+                Download
+              </a>
+            </td>
+            <td>
+              <a href="https://[C3_DOMAIN].org/downloads/one-second-a-day-{version}-x86_64.apk.sha256">
+                SHA256
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Sideload instructions -->
+      <details style="margin-top:1.5rem;border:1px solid var(--color-border);border-radius:var(--radius);padding:1.25rem;">
+        <summary style="cursor:pointer;font-weight:600;color:var(--color-navy);">
+          How to install an APK (sideloading instructions)
+        </summary>
+        <div style="margin-top:1rem;color:var(--color-text-muted);font-size:0.95rem;">
+          <p>
+            <strong>Why direct download?</strong> Installing directly from our site means no
+            Google account, no Play Store, and no middleman between you and the software.
+            The source code is publicly auditable &mdash; you can verify what you&rsquo;re installing.
+          </p>
+          <ol style="margin-top:0.75rem;">
+            <li>
+              Download the APK file above that matches your phone&rsquo;s architecture
+              (arm64-v8a for most modern phones).
+            </li>
+            <li>
+              Open your phone&rsquo;s <strong>Files</strong> app and navigate to your
+              <strong>Downloads</strong> folder.
+            </li>
+            <li>
+              Tap the APK file. Android will ask you to enable installation from
+              this source &mdash; tap <strong>Settings</strong>, enable
+              <strong>Allow from this source</strong>, then go back and install.
+            </li>
+            <li>
+              On Android 8+, this permission is per-app (e.g., per browser or file manager).
+              You can revoke it after installing.
+            </li>
+          </ol>
+          <p style="margin-top:0.75rem;">
+            <strong>Verify the checksum (optional but recommended):</strong>
+            Download the matching <code>.sha256</code> file and compare it to the output of
+            <code>sha256sum one-second-a-day-*.apk</code> on your computer. A match confirms
+            the file was not modified in transit.
+          </p>
+        </div>
+      </details>
+    </div>
+
+    <!-- iOS / Web -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h2 style="font-size:1.2rem;margin-bottom:0.5rem;">iOS / Desktop &mdash; Web App (PWA)</h2>
+      <p style="color:var(--color-text-muted);margin-bottom:0.75rem;">
+        The web version runs in your browser and can be installed to your home screen.
+        It includes all core features: capture, organize, compile, and share.
+        <em>Video processing on iOS may be slower than the native Android app.</em>
+      </p>
+      <ol style="color:var(--color-text-muted);font-size:0.95rem;margin-bottom:1.25rem;">
+        <li>Open <strong>Safari</strong> on your iPhone or iPad.</li>
+        <li>Navigate to <code>videojournal.[C3_DOMAIN].org</code>.</li>
+        <li>Tap the <strong>Share</strong> button &nbsp;(the square with an arrow).</li>
+        <li>Tap <strong>Add to Home Screen</strong>.</li>
+        <li>The app icon appears on your home screen. Open it for a full-screen experience.</li>
+      </ol>
+      <a href="https://videojournal.[C3_DOMAIN].org" class="btn btn-primary">
+        Open Web App
+      </a>
+    </div>
+
+    <!-- Source -->
+    <div class="card">
+      <h2 style="font-size:1.2rem;margin-bottom:0.5rem;">Build from Source</h2>
+      <p style="color:var(--color-text-muted);margin-bottom:1.25rem;">
+        The full source code is available under the MIT License.
+        Requires Flutter SDK &ge;3.3.0.
+      </p>
+      <pre style="background:var(--color-navy);color:#c8e0c8;padding:1rem;border-radius:var(--radius);font-size:0.875rem;overflow-x:auto;"><code>git clone https://github.com/[C3_DOMAIN]/one-second-a-day.git
+cd one-second-a-day/one_second_a_day
+flutter pub get
+flutter build apk --split-per-abi</code></pre>
+      <div style="margin-top:1.25rem;">
+        <a href="https://github.com/[C3_DOMAIN]/one-second-a-day" class="btn btn-primary" style="font-size:0.875rem;padding:0.5rem 1.2rem;">
+          View Source on GitHub
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="content">
+    <h2 style="font-size:1.2rem;">Changelog</h2>
+    <h3 style="margin-top:1.25rem;">v1.1.0 &mdash; 2026-02-26</h3>
+    <ul style="color:var(--color-text-muted);font-size:0.95rem;">
+      <li>Progressive Web App for iOS Safari (all core features)</li>
+      <li>Gallery import: accept images and video files</li>
+      <li>Web-compatible video playback and processing (ffmpeg.wasm)</li>
+      <li>Platform-split architecture for clean iOS/Android code paths</li>
+    </ul>
+    <h3 style="margin-top:1.5rem;">v1.0.0 &mdash; 2026-01-01</h3>
+    <ul style="color:var(--color-text-muted);font-size:0.95rem;">
+      <li>Initial public release</li>
+      <li>Video capture, calendar view, and compilation</li>
+      <li>Face recognition and GPS tagging</li>
+      <li>Backup and restore, home screen widget, onboarding</li>
+    </ul>
+    <p style="margin-top:1.5rem;font-size:0.875rem;color:var(--color-text-muted);">
+      <a href="https://github.com/[C3_DOMAIN]/one-second-a-day/blob/main/one_second_a_day/CHANGELOG.md">
+        Full changelog on GitHub &rarr;
+      </a>
+    </p>
+  </div>
+</section>
+
+</Layout>

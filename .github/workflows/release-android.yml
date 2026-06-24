@@ -1,0 +1,79 @@
+name: Build Android Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag (e.g. v1.2.0)'
+        required: true
+
+permissions:
+  contents: write  # needed to upload release assets
+
+jobs:
+  build:
+    name: Build APK + AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.x'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: .
+        run: flutter pub get
+
+      - name: Run tests
+        working-directory: .
+        run: flutter test
+
+      - name: Build split APKs (for direct download)
+        working-directory: .
+        run: flutter build apk --split-per-abi --release
+
+      - name: Build AAB (for Google Play)
+        working-directory: .
+        run: flutter build appbundle --release
+
+      - name: Generate SHA256 checksums
+        working-directory: ./build/outputs/flutter-apk
+        run: |
+          for f in *.apk; do
+            sha256sum "$f" > "${f}.sha256"
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: |
+            build/outputs/flutter-apk/*.apk
+            build/outputs/flutter-apk/*.sha256
+            build/outputs/bundle/release/*.aab
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/outputs/flutter-apk/*.apk
+            build/outputs/flutter-apk/*.sha256
+            build/outputs/bundle/release/*.aab
+          generate_release_notes: true
+          draft: true  # review before publishing

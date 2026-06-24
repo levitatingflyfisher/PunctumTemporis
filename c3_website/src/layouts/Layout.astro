@@ -1,0 +1,88 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = '[C3_NAME] — Free, open-source apps for families.',
+  ogImage = '/og-default.png',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const fullTitle = title === '[C3_NAME]' ? title : `${title} | [C3_NAME]`;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={fullTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalURL} />
+  <meta property="og:site_name" content="[C3_NAME]" />
+
+  <!-- Favicon — replace /favicon.svg with org icon before launch -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <title>{fullTitle}</title>
+
+  <style is:global>
+    @import '/src/styles/global.css';
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="site-logo">[C3_NAME]</a>
+      <nav aria-label="Main navigation">
+        <ul class="site-nav">
+          <li><a href="/apps">Apps</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div>
+        <p class="footer-brand">[C3_NAME]</p>
+        <p>A 501(c)(3) nonprofit.<br />Free tools for families.</p>
+      </div>
+      <div>
+        <p style="font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.75rem;color:#6a7a8a;">Apps</p>
+        <ul class="footer-links">
+          <li><a href="/apps/video-journal">One Second A Day</a></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:0.8rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.75rem;color:#6a7a8a;">Org</p>
+        <ul class="footer-links">
+          <li><a href="/about">About</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-copy">
+        &copy; 2026 [C3_NAME]. All apps are open source under the MIT License.
+        [C3_NAME] is a 501(c)(3) nonprofit organization.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

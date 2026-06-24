@@ -1,0 +1,54 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Contact"
+  description="Contact [C3_NAME]."
+>
+
+<section class="hero" style="padding:3rem 1.5rem;">
+  <div class="container">
+    <p class="section-label" style="color:#c8a060;">Contact</p>
+    <h1>Get in Touch</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="content">
+    <div class="card-grid">
+      <div class="card">
+        <h3>General inquiries</h3>
+        <p>Questions about our organization, apps, or mission.</p>
+        <p style="margin-top:1rem;">
+          <a href="mailto:hello@[C3_DOMAIN].org">hello@[C3_DOMAIN].org</a>
+        </p>
+      </div>
+      <div class="card">
+        <h3>App support</h3>
+        <p>Bug reports, feature requests, or help using an app.</p>
+        <p style="margin-top:1rem;">
+          <a href="https://github.com/[C3_DOMAIN]/one-second-a-day/issues">
+            Open an issue on GitHub &rarr;
+          </a>
+        </p>
+      </div>
+      <div class="card">
+        <h3>Privacy &amp; security</h3>
+        <p>Privacy questions or responsible disclosure of security issues.</p>
+        <p style="margin-top:1rem;">
+          <a href="mailto:security@[C3_DOMAIN].org">security@[C3_DOMAIN].org</a>
+        </p>
+      </div>
+      <div class="card">
+        <h3>Partnerships &amp; grants</h3>
+        <p>Foundation inquiries, partnership opportunities, or press.</p>
+        <p style="margin-top:1rem;">
+          <a href="mailto:hello@[C3_DOMAIN].org">hello@[C3_DOMAIN].org</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</Layout>

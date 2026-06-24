@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+    For more details: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Capture one second of video every day and compile them into montage videos.">
+
+  <!-- PWA / Chrome -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS Safari PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="1 Sec/Day">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="icons/Icon-192.png"/>
+
+  <title>One Second A Day</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- iOS PWA install prompt -->
+  <script>
+    (function () {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      var dismissed = localStorage.getItem('ios-install-dismissed');
+      if (isIOS && !isStandalone && !dismissed) {
+        window.addEventListener('load', function () {
+          var banner = document.createElement('div');
+          banner.id = 'ios-install-banner';
+          banner.setAttribute('style',
+            'position:fixed;bottom:0;left:0;right:0;z-index:9999;' +
+            'background:#1a1a2e;color:#e8e8e8;padding:14px 16px;' +
+            'display:flex;align-items:center;justify-content:space-between;' +
+            'font-family:system-ui,-apple-system,sans-serif;font-size:14px;' +
+            'box-shadow:0 -2px 12px rgba(0,0,0,0.4);');
+          banner.innerHTML =
+            '<span>Install this app: tap <strong>Share ↑</strong> then <strong>Add to Home Screen</strong></span>' +
+            '<button id="ios-install-dismiss" style="background:none;border:1px solid #666;color:#ccc;' +
+            'border-radius:4px;padding:4px 10px;font-size:13px;cursor:pointer;margin-left:12px;flex-shrink:0;">Dismiss</button>';
+          document.body.appendChild(banner);
+          document.getElementById('ios-install-dismiss').addEventListener('click', function () {
+            banner.remove();
+            localStorage.setItem('ios-install-dismissed', '1');
+          });
+        });
+      }
+    })();
+  </script>
+
+  <!--
+    coi-serviceworker: adds COOP/COEP headers via service worker, enabling
+    SharedArrayBuffer on GitHub Pages (required for ffmpeg.wasm multi-threading).
+    Source: https://github.com/gzuidhof/coi-serviceworker (MIT)
+  -->
+  <script src="coi-serviceworker.js"></script>
+  <!-- ffmpeg.wasm v0.12 — bundled for offline use and SharedArrayBuffer support -->
+  <script src="ffmpeg/ffmpeg.js"></script>
+</head>
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

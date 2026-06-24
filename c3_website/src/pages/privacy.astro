@@ -1,0 +1,166 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Privacy Policy"
+  description="Privacy policy for [C3_NAME] apps. All data is stored locally on your device. No servers, no tracking, no accounts."
+>
+
+<section style="padding:3rem 1.5rem 1rem;">
+  <div class="content">
+    <p class="section-label">Legal</p>
+    <h1>Privacy Policy</h1>
+  </div>
+</section>
+
+<section class="section legal-page" style="padding-top:1rem;">
+  <div class="content">
+    <p class="effective-date">Effective date: February 26, 2026</p>
+
+    <p>
+      [C3_NAME] (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is a
+      501(c)(3) nonprofit organization. This Privacy Policy describes how our
+      apps handle information. The short version: <strong>our apps do not collect,
+      transmit, or store your personal data on any server we operate.</strong>
+      All data stays on your device.
+    </p>
+
+    <h2>1. Data We Collect</h2>
+    <p>
+      Our apps do not collect personal information. Specifically:
+    </p>
+    <ul>
+      <li>We do not create or require user accounts.</li>
+      <li>We do not collect email addresses, phone numbers, or any contact information.</li>
+      <li>We do not use advertising networks or analytics platforms.</li>
+      <li>We do not track app usage, session lengths, or feature interactions.</li>
+    </ul>
+
+    <h2>2. Data Stored On Your Device</h2>
+    <p>
+      Our apps store data locally on your device. This data never leaves your device
+      unless you explicitly share or export it. Examples of locally stored data:
+    </p>
+    <ul>
+      <li><strong>One Second A Day:</strong> video clips, thumbnails, compilation
+        files, clip metadata (dates, tags, GPS coordinates if enabled),
+        face recognition embeddings (if enabled), and app preferences.</li>
+    </ul>
+    <p>
+      This data is stored in your device&rsquo;s private app storage and is not
+      accessible to other apps without your explicit action (e.g., using the
+      system share sheet).
+    </p>
+
+    <h2>3. Optional Features That Access Device Data</h2>
+    <p>
+      Some features request access to device capabilities. All are opt-in and
+      can be disabled in app settings:
+    </p>
+    <ul>
+      <li>
+        <strong>Camera:</strong> Used to record video clips. Video is saved
+        locally; nothing is transmitted.
+      </li>
+      <li>
+        <strong>Microphone:</strong> Used to capture audio with video clips.
+        Audio is saved locally with the clip.
+      </li>
+      <li>
+        <strong>Location (GPS):</strong> Used to tag clips with a location
+        name (e.g., &ldquo;New York, NY&rdquo;). Location data is stored
+        locally with the clip metadata and is never transmitted to us.
+        Reverse geocoding is performed offline using bundled city data.
+      </li>
+      <li>
+        <strong>Photo library:</strong> Used to import existing photos or
+        videos into the app. We read only the files you explicitly select.
+      </li>
+      <li>
+        <strong>Notifications:</strong> Used to send daily reminder
+        notifications. Notification scheduling is handled entirely on-device.
+      </li>
+      <li>
+        <strong>Face recognition:</strong> Used to automatically tag people
+        in clips. Face embeddings are computed on-device using a locally
+        bundled model (MobileFaceNet). No face data is transmitted.
+      </li>
+    </ul>
+
+    <h2>4. App Update Checks</h2>
+    <p>
+      Apps installed via direct APK download (not through Google Play) may
+      perform a version check at launch. This is a simple HTTP GET request to
+      our website:
+    </p>
+    <pre style="background:var(--color-bg-alt);border:1px solid var(--color-border);border-radius:var(--radius);padding:0.75rem 1rem;font-size:0.875rem;overflow-x:auto;">GET https://[C3_DOMAIN].org/apps/[app-name]/version.json</pre>
+    <p>
+      This request carries only standard HTTP headers (no personal identifiers).
+      It checks whether a newer version is available and, if so, displays an
+      in-app banner. No data about you or your device is sent to us.
+    </p>
+    <p>
+      Apps installed via Google Play do not perform this check; Google Play
+      handles updates directly.
+    </p>
+
+    <h2>5. Third-Party Services</h2>
+    <p>
+      Our apps do not integrate with any third-party analytics, advertising,
+      crash-reporting, or social media services.
+    </p>
+    <p>
+      Apps installed via Google Play are subject to Google Play&rsquo;s own
+      privacy practices for the distribution and update process. We do not
+      control or receive data from Google Play beyond standard developer
+      console metrics (crash counts, install counts &mdash; aggregated,
+      not personally identifiable).
+    </p>
+
+    <h2>6. Children&rsquo;s Privacy (COPPA)</h2>
+    <p>
+      Our apps are designed for use by adults and families. They are not
+      directed to children under 13. Because our apps do not collect any
+      personal information from anyone, we are confident they comply with the
+      Children&rsquo;s Online Privacy Protection Act (COPPA).
+    </p>
+    <p>
+      If you believe a child under 13 has provided us with personal information,
+      please contact us at <a href="mailto:privacy@[C3_DOMAIN].org">privacy@[C3_DOMAIN].org</a>
+      and we will address the concern promptly.
+    </p>
+
+    <h2>7. Security</h2>
+    <p>
+      Because we do not operate servers that store your data, there is no
+      central database to breach. Your data is protected by your device&rsquo;s
+      own security mechanisms (screen lock, encryption, etc.).
+    </p>
+    <p>
+      Our app code is open source and publicly auditable. If you discover a
+      security vulnerability, please report it to
+      <a href="mailto:security@[C3_DOMAIN].org">security@[C3_DOMAIN].org</a>.
+    </p>
+
+    <h2>8. Changes to This Policy</h2>
+    <p>
+      We may update this Privacy Policy as our apps evolve. If we make
+      material changes, we will update the effective date above and, where
+      appropriate, provide notice within the app. Continued use of our apps
+      after an update constitutes acceptance of the revised policy.
+    </p>
+
+    <h2>9. Contact</h2>
+    <p>
+      Questions about this policy or our data practices:
+    </p>
+    <ul>
+      <li>Email: <a href="mailto:privacy@[C3_DOMAIN].org">privacy@[C3_DOMAIN].org</a></li>
+      <li>Mail: [C3_NAME], [Registered address — add before launch]</li>
+    </ul>
+
+  </div>
+</section>
+
+</Layout>

@@ -1,0 +1,167 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="One Second A Day"
+  description="Capture one second of video every day and compile them into montage videos. Free, open-source, local-first. Android and iOS PWA."
+>
+
+<!-- App hero -->
+<section class="hero" style="padding:4rem 1.5rem;">
+  <div class="container">
+    <p class="section-label" style="color:#c8a060;">Video Journal</p>
+    <h1>One Second A Day</h1>
+    <p class="tagline">
+      Capture one second of video every day. Build a montage of your year.
+      No accounts, no cloud, no fees.
+    </p>
+    <div class="btn-group">
+      <a href="/apps/video-journal/download" class="btn btn-primary">Download</a>
+      <a href="https://videojournal.[C3_DOMAIN].org" class="btn btn-outline">Open Web App</a>
+    </div>
+    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+      <span class="badge badge-stable">Android — Stable</span>
+      <span class="badge badge-beta">iOS PWA — Beta</span>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="container">
+    <p class="section-label">Features</p>
+    <h2>Everything you need. Nothing you don&rsquo;t.</h2>
+
+    <div class="card-grid" style="margin-top:2rem;">
+      <div class="card">
+        <h3>Capture &amp; Organize</h3>
+        <ul style="color:var(--color-text-muted);font-size:0.95rem;">
+          <li>Record 1-second clips daily via camera or gallery import</li>
+          <li>Multi-clip per day with drag-to-reorder</li>
+          <li>Post-capture trimming with duration presets</li>
+          <li>Calendar view to browse and manage clips</li>
+          <li>Tag system for organizing clips</li>
+          <li>GPS capture and location metadata</li>
+          <li>Face detection and recognition (Android)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Compile &amp; Share</h3>
+        <ul style="color:var(--color-text-muted);font-size:0.95rem;">
+          <li>Compile date ranges into montage videos</li>
+          <li>Optional background music</li>
+          <li>Date and location overlay (retro CRT style)</li>
+          <li>Filter compilations by tag, location, or day of week</li>
+          <li>Share clips and compilations via system share</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Stats &amp; Safety</h3>
+        <ul style="color:var(--color-text-muted);font-size:0.95rem;">
+          <li>Year-in-Review: heatmap, monthly charts, streak stats</li>
+          <li>ZIP-based backup and restore</li>
+          <li>Merge or replace restore modes</li>
+          <li>Daily reminder notifications</li>
+          <li>Android home screen widget</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Privacy callout -->
+<section class="section section-alt">
+  <div class="content" style="text-align:center;">
+    <p class="section-label">Privacy</p>
+    <h2>Your memories stay on your phone.</h2>
+    <p style="color:var(--color-text-muted);">
+      One Second A Day stores all data locally on your device using your
+      phone&rsquo;s private storage. There are no servers, no accounts, and
+      no network requests beyond the app update check (a simple GET to our
+      own domain). Your videos never leave your device unless you explicitly
+      share them.
+    </p>
+    <p style="margin-top:1rem;">
+      <a href="/privacy">Read our full privacy policy &rarr;</a>
+    </p>
+  </div>
+</section>
+
+<!-- Platform availability -->
+<section class="section">
+  <div class="container">
+    <p class="section-label">Platforms</p>
+    <h2>How to get it.</h2>
+
+    <table class="download-table" style="margin-top:1.5rem;">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Android</strong></td>
+          <td>Google Play</td>
+          <td><span class="badge badge-stable">Stable</span></td>
+          <td><a href="https://play.google.com/store/apps/details?id=org.[C3_DOMAIN].onesecondaday">Play Store &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Android</strong></td>
+          <td>Direct APK (sideload)</td>
+          <td><span class="badge badge-stable">Stable</span></td>
+          <td><a href="/apps/video-journal/download">Download APK &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>iOS / Desktop</strong></td>
+          <td>Progressive Web App</td>
+          <td><span class="badge badge-beta">Beta</span></td>
+          <td><a href="https://videojournal.[C3_DOMAIN].org">Open Web App &rarr;</a></td>
+        </tr>
+        <tr>
+          <td><strong>Source</strong></td>
+          <td>Build from source</td>
+          <td><span class="badge badge-stable">MIT License</span></td>
+          <td><a href="https://github.com/[C3_DOMAIN]/one-second-a-day">GitHub &rarr;</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:2rem;padding:1.25rem;background:var(--color-bg-alt);border-radius:var(--radius);border:1px solid var(--color-border);">
+      <strong>iOS note:</strong> The iOS version is a Progressive Web App.
+      Visit <code>videojournal.[C3_DOMAIN].org</code> in Safari, then tap
+      <strong>Share &rarr; Add to Home Screen</strong> for a full-screen
+      app experience. No App Store required.
+    </div>
+
+    <div style="margin-top:2rem;">
+      <a href="/apps/video-journal/download" class="btn btn-primary">Download Options</a>
+    </div>
+  </div>
+</section>
+
+<!-- Open source -->
+<section class="section section-alt">
+  <div class="content">
+    <p class="section-label">Open Source</p>
+    <h2>Auditable by design.</h2>
+    <p style="color:var(--color-text-muted);">
+      The full source code is available under the MIT License. If you are
+      a developer, security researcher, or just curious about what runs on
+      your phone, you can read, audit, fork, or contribute to the code.
+    </p>
+    <p style="color:var(--color-text-muted);">
+      Built with Flutter. No proprietary SDKs. No Google Play Services
+      dependency.
+    </p>
+    <div style="margin-top:1.5rem;">
+      <a href="https://github.com/[C3_DOMAIN]/one-second-a-day" class="btn btn-primary">View Source on GitHub</a>
+    </div>
+  </div>
+</section>
+
+</Layout>
