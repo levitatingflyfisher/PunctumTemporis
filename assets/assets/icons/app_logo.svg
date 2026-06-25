@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- CRT Monitor frame -->
+  <rect x="4" y="4" width="56" height="44" rx="2" fill="none" stroke="#00FF00" stroke-width="3"/>
+  <!-- Screen inner -->
+  <rect x="8" y="8" width="48" height="36" fill="#001100"/>
+  <!-- Stylized "1" -->
+  <rect x="26" y="12" width="8" height="28" fill="#00FF00"/>
+  <rect x="20" y="16" width="6" height="6" fill="#00FF00"/>
+  <rect x="18" y="36" width="24" height="4" fill="#00FF00"/>
+  <!-- Scanlines -->
+  <line x1="8" y1="14" x2="56" y2="14" stroke="#00FF00" stroke-width="0.5" opacity="0.15"/>
+  <line x1="8" y1="20" x2="56" y2="20" stroke="#00FF00" stroke-width="0.5" opacity="0.15"/>
+  <line x1="8" y1="26" x2="56" y2="26" stroke="#00FF00" stroke-width="0.5" opacity="0.15"/>
+  <line x1="8" y1="32" x2="56" y2="32" stroke="#00FF00" stroke-width="0.5" opacity="0.15"/>
+  <line x1="8" y1="38" x2="56" y2="38" stroke="#00FF00" stroke-width="0.5" opacity="0.15"/>
+  <!-- Monitor stand -->
+  <rect x="24" y="48" width="16" height="4" fill="#00FF00"/>
+  <rect x="20" y="52" width="24" height="4" rx="1" fill="#00FF00"/>
+</svg>
