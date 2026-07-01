@@ -372,71 +372,6 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
     return '${fmt.format(from).toUpperCase()} — ${fmt.format(to).toUpperCase()}';
   }
 
-  // Build a flat list of display items: target assets, separator, other assets
-  // Returns (item, isAsset, isSeparator, separatorLabel, matchesTarget)
-  int get _totalItemCount {
-    int count = 0;
-    if (_targetDateAssets.isNotEmpty) {
-      count += _targetDateAssets.length; // target assets
-      count += 1; // "OTHER MEDIA" separator
-    } else {
-      count += 1; // "NO MEDIA FROM [DATE]" separator
-    }
-    count += _otherAssets.length;
-    if (_hasMore) count += 1; // loading indicator
-    return count;
-  }
-
-  // Returns null for separator, AssetEntity for asset
-  // Also returns (matchesTarget, separatorLabel)
-  ({AssetEntity? asset, bool matchesTarget, String? separatorLabel}) _getItemAt(
-      int index) {
-    int offset = 0;
-
-    if (_targetDateAssets.isNotEmpty) {
-      // Target date assets
-      if (index < _targetDateAssets.length) {
-        return (
-          asset: _targetDateAssets[index],
-          matchesTarget: true,
-          separatorLabel: null
-        );
-      }
-      offset += _targetDateAssets.length;
-
-      // Separator after target assets
-      if (index == offset) {
-        return (
-          asset: null,
-          matchesTarget: false,
-          separatorLabel: 'OTHER MEDIA'
-        );
-      }
-      offset += 1;
-    } else {
-      // No target-date matches separator
-      if (index == 0) {
-        final targetDate = DateTime.parse(widget.targetDate);
-        final label =
-            'NO MEDIA FROM ${DateFormat('MMM d').format(targetDate).toUpperCase()}';
-        return (asset: null, matchesTarget: false, separatorLabel: label);
-      }
-      offset += 1;
-    }
-
-    // Other assets
-    final otherIndex = index - offset;
-    if (otherIndex < _otherAssets.length) {
-      return (
-        asset: _otherAssets[otherIndex],
-        matchesTarget: false,
-        separatorLabel: null
-      );
-    }
-
-    // Loading indicator (shouldn't be reached as separator)
-    return (asset: null, matchesTarget: false, separatorLabel: null);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +435,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           style: AppTheme.monoFont(
                             fontSize: 10,
                             color:
-                                theme.colorScheme.onSurface.withOpacity(0.6),
+                                theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -514,7 +449,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           child: Icon(Icons.close,
                               size: 14,
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.5)),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                         ),
                       IconButton(
                         icon: Icon(Icons.chevron_right,
@@ -569,7 +504,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           'MEDIA PERMISSION REQUIRED',
                           style: AppTheme.pixelFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -584,7 +519,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                             style: AppTheme.pixelFont(
                               fontSize: 12,
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.5),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         )
@@ -628,7 +563,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                                     style: AppTheme.pixelFont(
                                       fontSize: 10,
                                       color: theme.colorScheme.onSurface
-                                          .withOpacity(0.5),
+                                          .withValues(alpha: 0.5),
                                     ),
                                   ),
                                 ),
@@ -670,7 +605,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                                   style: AppTheme.pixelFont(
                                     fontSize: 11,
                                     color: theme.colorScheme.onSurface
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                   ),
                                 ),
                               ),
@@ -741,7 +676,7 @@ class _FilterTab extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? theme.colorScheme.primary : Colors.transparent,
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(selected ? 1.0 : 0.5),
+            color: theme.colorScheme.primary.withValues(alpha: selected ? 1.0 : 0.5),
           ),
         ),
         child: Text(
@@ -850,7 +785,7 @@ class _MediaTileState extends State<_MediaTile> {
               bottom: 2,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.7),
                 child: Text(
                   dateLabel,
                   style: AppTheme.monoFont(fontSize: 11, color: Colors.white),
@@ -866,7 +801,7 @@ class _MediaTileState extends State<_MediaTile> {
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   constraints: const BoxConstraints(maxWidth: 80),
                   child: Text(
                     _locationLabel?.split(',').first ?? '?',
@@ -886,7 +821,7 @@ class _MediaTileState extends State<_MediaTile> {
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha: 0.7),
                   child: Text(
                     _formatDuration(widget.asset.duration),
                     style: AppTheme.monoFont(fontSize: 11, color: Colors.white),
@@ -903,7 +838,7 @@ class _MediaTileState extends State<_MediaTile> {
     final mins = seconds ~/ 60;
     final secs = seconds % 60;
     if (mins > 0) {
-      return '${mins}:${secs.toString().padLeft(2, '0')}';
+      return '$mins:${secs.toString().padLeft(2, '0')}';
     }
     return '${secs}s';
   }

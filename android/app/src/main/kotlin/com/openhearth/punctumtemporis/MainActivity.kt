@@ -1,4 +1,4 @@
-package com.example.one_second_a_day
+package com.openhearth.punctumtemporis
 
 import io.flutter.embedding.android.FlutterActivity
 

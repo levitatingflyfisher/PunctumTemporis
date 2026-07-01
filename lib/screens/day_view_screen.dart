@@ -32,7 +32,6 @@ class DayViewScreen extends StatefulWidget {
 class _DayViewScreenState extends State<DayViewScreen> {
   late PageController _pageController;
   late DateTime _currentDate;
-  late DateTime _originDate;
   DateTime get _today => DateTime.now();
 
   // Range: 1 year back from today (or earliest clip, whichever is earlier)
@@ -48,7 +47,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
   void initState() {
     super.initState();
     _currentDate = widget.initialDate;
-    _originDate = widget.initialDate;
 
     // Calculate bounds
     _endDate = DateTime(_today.year, _today.month, _today.day);
@@ -307,7 +305,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Icon(
                       Icons.drag_handle,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 28,
                     ),
                   ),
@@ -337,7 +335,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4, vertical: 2),
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         child: Text(
                           '${index + 1}',
                           style:
@@ -364,7 +362,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         '${clip.duration?.toStringAsFixed(1) ?? "1.0"}s',
                         style: AppTheme.monoFont(
                             fontSize: 10,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                       ),
                     ],
                   ),
@@ -390,14 +388,14 @@ class _DayViewScreenState extends State<DayViewScreen> {
           Icon(
             isFuture ? Icons.schedule : Icons.videocam_off_outlined,
             size: 64,
-            color: theme.colorScheme.onSurface.withOpacity(0.2),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
           ),
           const SizedBox(height: 16),
           Text(
             isFuture ? 'FUTURE DATE' : 'NO CLIP',
             style: AppTheme.pixelFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
           const SizedBox(height: 8),
@@ -405,7 +403,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
             DateFormat('EEEE').format(date).toUpperCase(),
             style: AppTheme.monoFont(
               fontSize: 12,
-              color: theme.colorScheme.onSurface.withOpacity(0.2),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
             ),
           ),
           if (!isFuture) ...[
@@ -464,7 +462,7 @@ class _CaptureOption extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.3),
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
           ),
           borderRadius: AppTheme.isModern ? BorderRadius.circular(8) : null,
         ),
@@ -502,7 +500,7 @@ class _CaptureOption extends StatelessWidget {
                   subtitle,
                   style: AppTheme.monoFont(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],

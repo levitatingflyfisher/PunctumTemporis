@@ -2,6 +2,112 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-07-26
+
+### Added
+- Backups now carry your montage videos under `compilations/` — ON by
+  default (montages are the point of the app), with an "Include montage
+  videos" switch next to the size estimate for when size matters. The
+  verified receipt reports the montage files actually aboard; a montage
+  whose file is unreadable at pack time is skipped honestly instead of
+  failing the backup.
+- Every new montage saves its recipe — the clip-audio level and each
+  music segment with its timing and volume — so re-opening one seeds the
+  compile controls exactly as you left them, on any device the backup
+  lands on. (Montages made before this release have no recipe and open
+  with the current controls, as before.)
+- Restored montage files are extracted into the app's own `compiled/`
+  dir and their rows re-pointed there, so montages made on a previous
+  install play again after a device or app-id migration.
+
+### Fixed
+- Opening a montage whose video file isn't on this device now shows a
+  quiet inline notice (the gallery copy usually survives, and COMPILE
+  rebuilds it from the clips) instead of a raw video-player error
+  snackbar — the post-migration failure a restored diary used to hit.
+- Restored compilation paths are now pinned into the app's own compiled
+  dir the way clip paths always were, so a crafted backup can no longer
+  aim share/delete/next-backup file operations at arbitrary paths
+  through a compilation row.
+- A gallery-scanner hiccup after saving a montage no longer surfaces as
+  an error — the row is already saved; the refresh is a courtesy.
+- Home-screen widget refresh failures no longer escape as unhandled
+  async errors: the plugin calls return futures, and each now carries
+  its own error handler.
+
+## [1.4.0] - 2026-07-22
+
+### Added
+- Previous snapshots: before every restore the app automatically saves a
+  snapshot of your journal index AND settings (keep-10) — restore, or roll
+  one back, from the Backup & Restore screen. Video files are never
+  deleted by a restore, so rolling back covers everything a restore can
+  change.
+- Restores are refused (nothing touched) if the safety snapshot cannot be
+  saved — fail-closed by design.
+- Backups now include your settings (theme, reminders, pinned tags,
+  milestones — an explicit allowlist; internal flags never travel); older
+  backups without them still restore fine, and older app versions simply
+  ignore the new entry.
+- Every backup verifies itself by read-back before reporting success —
+  the receipt counts the clip files actually inside the archive.
+- Silent freshness snapshots: when your newest journal snapshot is more
+  than 7 days old (or you have none), the app quietly saves one right
+  after launch. No nag, no badge — it just happens, so there is always a
+  recent rollback point even if you never open Backup & Restore.
+
+### Fixed
+- New vault snapshots stay readable by OLDER app versions: they now carry
+  the legacy `{snapshotVersion, metadata, settings}` keys alongside the
+  new envelope keys, because the old shipped parser has no envelope
+  branch and would have written the envelope wrapper over the journal
+  index as if it were metadata.
+- The replace-mode confirmation no longer promises settings replacement
+  for older (v1) backups that carry no settings — it now says your
+  current settings stay as they are.
+
+### Changed
+- The replace-all warning now tells the truth: a rollback snapshot exists,
+  so "cannot be undone" is gone.
+- The replace-mode confirmation now says exactly what happens: the journal
+  index and settings are replaced, clips missing from the backup stop
+  appearing in the app, and their video files stay on your device — a
+  restore never deletes clip files, so "REPLACE ALL DATA?" overstated it.
+
+### Internal
+- The Hearth palette now reads its canonical colors from the shared
+  openhearth_design token package instead of hard-coded hex values.
+  Every swapped value is byte-identical, so nothing looks different;
+  two PT-local dark surfaces intentionally stay as literals because
+  they do not match any canonical token.
+- Vault snapshots are now wrapped in the fleet-standard BackupEnvelope
+  (`{app, schemaVersion, createdAt, payload}`) via a new
+  SnapshotSerializer, gaining a creation stamp and wrong-app /
+  future-schema rejection on restore. Both legacy snapshot shapes (the
+  v2 composite and the original raw metadata map) keep restoring —
+  existing rollback points are never orphaned.
+- The fleet conformance suite is wired in
+  (`test/fleet_conformance_test.dart`): style tokens, backup envelope,
+  size budgets (`budgets.json`, baseline+5% ratchet), the exact
+  nine-permission Android surface, and CI/test-harness canon are now
+  tests that can fail, with PT's deliberate divergences recorded in one
+  place. `test/flutter_test_config.dart` re-synced to the canonical
+  fleet template (goldens unchanged, byte-identical).
+- CI: all three workflows pinned a Flutter version that has never
+  existed (`3.44.x`); they now pin the real fleet toolchain `3.38.7`
+  and clone the sibling path-dep packages so `pub get` can actually
+  resolve.
+- Removed unused dependencies `image_picker` and `permission_handler`
+  (zero references; all Android permissions are hand-declared in the
+  manifest, so the permission surface is unchanged).
+
+### Fixed
+- Streaks are no longer miscounted across a daylight-saving change: the
+  current-streak walk and longest-streak scan now use calendar-day
+  arithmetic (UTC-midnight subtraction) instead of elapsed-hours/24,
+  which could skip a day or split a real streak on the transition night.
+  Stored day keys are unchanged.
+
 ## [1.3.0] - 2026-03-20
 
 ### Added

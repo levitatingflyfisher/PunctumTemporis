@@ -59,9 +59,9 @@ app.*.map.json
 android/local.properties
 
 # Local working artifacts — do not commit
+# NOTE: AGENTS.md is intentionally NOT ignored — it is shipped guidance.
 CLAUDE.md
 GEMINI.md
-AGENTS.md
 docs/superpowers/
 .superpowers/
 /docs/superpowers/

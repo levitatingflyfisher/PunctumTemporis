@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.one_second_a_day"
+    namespace = "com.openhearth.punctumtemporis"
     compileSdk = flutter.compileSdkVersion // 35
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.one_second_a_day"
+        // Fleet-convention identity (was com.example.one_second_a_day; installs of
+        // the old id migrate via backup export → side-by-side restore, see
+        // docs/how-to/migrate-app-id.md).
+        applicationId = "com.openhearth.punctumtemporis"
         minSdk = 24 // flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion // 35
         versionCode = flutter.versionCode

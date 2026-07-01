@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 // Sentinel used by Clip.copyWith to distinguish "not provided" from
 // "explicitly null". Must be a top-level const so it qualifies as a
@@ -145,6 +144,13 @@ class Compilation {
   final String? endDate;
   final double? duration;
 
+  /// The montage recipe — the compile-time settings needed to faithfully
+  /// re-create this montage (clip-audio level and the music segments with
+  /// their timing/volume). Nullable: rows compiled before these fields
+  /// existed have no recipe and restore as null forever.
+  final double? originalVolume;
+  final List<AudioSegment>? audioSegments;
+
   Compilation({
     required this.id,
     required this.title,
@@ -154,6 +160,8 @@ class Compilation {
     this.startDate,
     this.endDate,
     this.duration,
+    this.originalVolume,
+    this.audioSegments,
   });
 
   Map<String, dynamic> toJson() {
@@ -166,6 +174,9 @@ class Compilation {
       'startDate': startDate,
       'endDate': endDate,
       'duration': duration,
+      if (originalVolume != null) 'originalVolume': originalVolume,
+      if (audioSegments != null)
+        'audioSegments': audioSegments!.map((s) => s.toJson()).toList(),
     };
   }
 
@@ -179,6 +190,11 @@ class Compilation {
       startDate: json['startDate'] as String?,
       endDate: json['endDate'] as String?,
       duration: (json['duration'] as num?)?.toDouble(),
+      originalVolume: (json['originalVolume'] as num?)?.toDouble(),
+      audioSegments: (json['audioSegments'] as List?)
+          ?.whereType<Map>()
+          .map((s) => AudioSegment.fromJson(Map<String, dynamic>.from(s)))
+          .toList(),
     );
   }
 }
@@ -200,6 +216,29 @@ class AudioSegment {
     this.duration,
     this.volume = 0.3,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'filePath': filePath,
+      'fileName': fileName,
+      'startTimeInCompilation': startTimeInCompilation,
+      'audioOffset': audioOffset,
+      'duration': duration,
+      'volume': volume,
+    };
+  }
+
+  factory AudioSegment.fromJson(Map<String, dynamic> json) {
+    return AudioSegment(
+      filePath: json['filePath'] as String,
+      fileName: json['fileName'] as String,
+      startTimeInCompilation:
+          (json['startTimeInCompilation'] as num?)?.toDouble() ?? 0,
+      audioOffset: (json['audioOffset'] as num?)?.toDouble() ?? 0,
+      duration: (json['duration'] as num?)?.toDouble(),
+      volume: (json['volume'] as num?)?.toDouble() ?? 0.3,
+    );
+  }
 
   AudioSegment copyWith({
     String? filePath,

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +18,43 @@ class CompilationScreen extends StatefulWidget {
   final StorageService storageService;
 
   static const backgroundToastMessage = 'Compiling — results when you return.';
+
+  /// Shown in place of the preview when a saved montage's video file can't
+  /// be opened on this device — the migrated-install case, where the row
+  /// traveled in a backup but the MP4 stayed with the old install (a copy
+  /// usually survives in the gallery). A state, not an error.
+  static const missingMontageNotice =
+      "The video file for this montage isn't on this device. A copy may "
+      'still be in your gallery. COMPILE rebuilds it from the clips below.';
+
+  /// Builds the metadata row for a finished montage, including the recipe
+  /// (clip-audio level + music segments) needed to faithfully re-create it
+  /// on a device where only the backup traveled.
+  @visibleForTesting
+  static Compilation buildCompilationRecord({
+    required String id,
+    required DateTime startDate,
+    required DateTime endDate,
+    required String outputPath,
+    required List<Clip> clips,
+    required double originalVolume,
+    required List<AudioSegment> audioSegments,
+  }) {
+    return Compilation(
+      id: id,
+      title:
+          '${DateFormat('MMM d').format(startDate)} - ${DateFormat('MMM d, yyyy').format(endDate)}',
+      filePath: outputPath,
+      clipIds: clips.map((c) => c.id).toList(),
+      createdAt: DateTime.now(),
+      startDate: DateFormatUtil.format(startDate, DateFormatOption.isoDate),
+      endDate: DateFormatUtil.format(endDate, DateFormatOption.isoDate),
+      duration:
+          clips.fold<double>(0.0, (sum, c) => sum + (c.duration ?? 1.0)),
+      originalVolume: originalVolume,
+      audioSegments: List.of(audioSegments),
+    );
+  }
 
   static String seasonLabel(DateTime date) {
     final m = date.month;
@@ -49,9 +86,10 @@ class _CompilationScreenState extends State<CompilationScreen>
   VideoPlayerController? _previewController;
   String? _previewBlobUrl; // web-only: revoked on dispose
   bool _isPreviewReady = false;
+  String? _previewNotice;
 
   // Multi-track audio support
-  List<AudioSegment> _audioSegments = [];
+  final List<AudioSegment> _audioSegments = [];
   double _originalVolume = 0.3;
 
   // EXIF date toggle
@@ -118,6 +156,7 @@ class _CompilationScreenState extends State<CompilationScreen>
         _endDate = range.end;
         _compiledPath = null;
         _isPreviewReady = false;
+        _previewNotice = null;
       });
       _disposePreview();
     }
@@ -129,6 +168,7 @@ class _CompilationScreenState extends State<CompilationScreen>
       _endDate = end;
       _compiledPath = null;
       _isPreviewReady = false;
+      _previewNotice = null;
     });
     _disposePreview();
   }
@@ -231,6 +271,7 @@ class _CompilationScreenState extends State<CompilationScreen>
     setState(() {
       _isCompiling = true;
       _progress = 0;
+      _previewNotice = null;
     });
 
     try {
@@ -263,7 +304,7 @@ class _CompilationScreenState extends State<CompilationScreen>
           final overlayDate = DateTime.parse(overlayDateStr);
           final dateText = DateFormatUtil.format(overlayDate, formatOption);
           final locationText = showLocation ? clip.locationLabel : null;
-          final tempPath = '${tempPrefix}$i.mp4';
+          final tempPath = '$tempPrefix$i.mp4';
 
           if (!mounted) return;
           setState(() => _progress = (i / clips.length) * 0.5);
@@ -355,18 +396,15 @@ class _CompilationScreenState extends State<CompilationScreen>
         }
       }
 
-      // Create compilation record with readable title
-      final compilation = Compilation(
+      // Create compilation record with readable title + the montage recipe
+      final compilation = CompilationScreen.buildCompilationRecord(
         id: widget.storageService.generateId(),
-        title:
-            '${DateFormat('MMM d').format(_startDate!)} - ${DateFormat('MMM d, yyyy').format(_endDate!)}',
-        filePath: outputPath,
-        clipIds: clips.map((c) => c.id).toList(),
-        createdAt: DateTime.now(),
-        startDate: DateFormatUtil.format(_startDate!, DateFormatOption.isoDate),
-        endDate: DateFormatUtil.format(_endDate!, DateFormatOption.isoDate),
-        duration:
-            clips.fold<double>(0.0, (sum, c) => sum + (c.duration ?? 1.0)),
+        startDate: _startDate!,
+        endDate: _endDate!,
+        outputPath: outputPath,
+        clips: clips,
+        originalVolume: _originalVolume,
+        audioSegments: _audioSegments,
       );
 
       await widget.storageService.addCompilation(compilation);
@@ -386,20 +424,23 @@ class _CompilationScreenState extends State<CompilationScreen>
     }
   }
 
-  Future<void> _initializePreview(String path) async {
+  /// Returns whether the preview came up. [quiet] is the re-open path: a
+  /// saved montage whose file can't be opened here (migrated install) is a
+  /// state the caller renders inline — not a snackbar-worthy error.
+  Future<bool> _initializePreview(String path, {bool quiet = false}) async {
     _disposePreview();
 
     if (!await FileStorage.exists(path)) {
-      _showError('Video file not found');
-      return;
+      if (!quiet) _showError('Video file not found');
+      return false;
     }
 
     try {
       if (kIsWeb) {
         final bytes = await FileStorage.readBytes(path);
         if (bytes == null) {
-          _showError('Video file not found');
-          return;
+          if (!quiet) _showError('Video file not found');
+          return false;
         }
         _previewBlobUrl = FileStorage.createObjectUrl(bytes, 'video/mp4');
         _previewController =
@@ -412,10 +453,15 @@ class _CompilationScreenState extends State<CompilationScreen>
       await _previewController!.setLooping(true);
 
       if (mounted) {
-        setState(() => _isPreviewReady = true);
+        setState(() {
+          _isPreviewReady = true;
+          _previewNotice = null;
+        });
       }
+      return true;
     } catch (e) {
-      _showError('Failed to load preview: $e');
+      if (!quiet) _showError('Failed to load preview: $e');
+      return false;
     }
   }
 
@@ -825,7 +871,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                       'CLEAR ALL FILTERS',
                       style: AppTheme.monoFont(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -836,7 +882,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                     'No clips in this range',
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   )
                 else ...[
@@ -855,7 +901,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                       Switch(
                         value: _addDateOverlay,
                         onChanged: (v) => setState(() => _addDateOverlay = v),
-                        activeColor: theme.colorScheme.primary,
+                        activeThumbColor: theme.colorScheme.primary,
                       ),
                       Text(
                         'Add date overlay to clips',
@@ -871,7 +917,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                         Switch(
                           value: _useExifDates,
                           onChanged: (v) => setState(() => _useExifDates = v),
-                          activeColor: Colors.amber,
+                          activeThumbColor: Colors.amber,
                         ),
                         Expanded(
                           child: Text(
@@ -892,7 +938,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                               widget.storageService.getIncludeLocationOverlay(),
                           onChanged: (v) =>
                               setState(() => _includeLocation = v),
-                          activeColor: theme.colorScheme.primary,
+                          activeThumbColor: theme.colorScheme.primary,
                         ),
                         Expanded(
                           child: Text(
@@ -968,7 +1014,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                                     icon: Icon(Icons.close,
                                         size: 18,
                                         color: theme.colorScheme.onSurface
-                                            .withOpacity(0.5)),
+                                            .withValues(alpha: 0.5)),
                                     onPressed: () => _removeAudioSegment(i),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
@@ -1069,7 +1115,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                             style: AppTheme.monoFont(
                               fontSize: 12,
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.6),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         ],
@@ -1128,6 +1174,43 @@ class _CompilationScreenState extends State<CompilationScreen>
                 ],
               ],
 
+              // A saved montage whose video file isn't openable on this
+              // device (migrated install) — explain and point at the
+              // rebuild path instead of failing loudly.
+              if (_compiledPath != null && _previewNotice != null) ...[
+                const SizedBox(height: 32),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          theme.colorScheme.primary.withValues(alpha: 0.4),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.movie_creation_outlined,
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.7),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _previewNotice!,
+                          style: AppTheme.monoFont(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               // Preview (rendered independently so opening existing compilations works)
               if (_compiledPath != null &&
                   _isPreviewReady &&
@@ -1180,7 +1263,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                         'Saved: ${_compiledPath!.split('/').last}',
                         style: AppTheme.monoFont(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ),
@@ -1228,7 +1311,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                   'No compilations yet',
                   style: AppTheme.monoFont(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
             ],
@@ -1242,6 +1325,7 @@ class _CompilationScreenState extends State<CompilationScreen>
   Future<void> _openCompilation(Compilation compilation) async {
     setState(() {
       _isPreviewReady = false;
+      _previewNotice = null;
       _compiledPath = compilation.filePath;
       // Populate date range from compilation model so preview renders
       if (compilation.startDate != null) {
@@ -1250,8 +1334,26 @@ class _CompilationScreenState extends State<CompilationScreen>
       if (compilation.endDate != null) {
         _endDate = DateTime.parse(compilation.endDate!);
       }
+      // Seed the saved recipe so COMPILE reproduces this montage
+      // faithfully. Legacy rows (compiled before recipes were saved)
+      // carry neither field and leave the current controls untouched.
+      if (compilation.originalVolume != null) {
+        _originalVolume = compilation.originalVolume!;
+      }
+      if (compilation.audioSegments != null) {
+        _audioSegments
+          ..clear()
+          ..addAll(compilation.audioSegments!);
+      }
     });
-    await _initializePreview(compilation.filePath);
+    final ok = await _initializePreview(compilation.filePath, quiet: true);
+    if (!ok) {
+      if (mounted) {
+        setState(
+            () => _previewNotice = CompilationScreen.missingMontageNotice);
+      }
+      return;
+    }
 
     // Auto-play when opening existing compilation
     if (_isPreviewReady && _previewController != null) {
@@ -1314,7 +1416,7 @@ class _QuickRangeButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.5)),
+          border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.5)),
         ),
         child: Text(
           label,
@@ -1390,7 +1492,7 @@ class _CompilationDayCell extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 padding: const EdgeInsets.symmetric(vertical: 1),
                 child: Text(
                   day.day.toString(),
@@ -1469,7 +1571,7 @@ class _CompilationDayCell extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.15),
+          color: theme.colorScheme.primary.withValues(alpha: 0.15),
           width: 1,
         ),
       ),
@@ -1478,7 +1580,7 @@ class _CompilationDayCell extends StatelessWidget {
           day.day.toString(),
           style: AppTheme.monoFont(
             fontSize: 12,
-            color: theme.colorScheme.onSurface.withOpacity(0.25),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
           ),
         ),
       ),
@@ -1529,7 +1631,7 @@ class _CompilationTile extends StatelessWidget {
                       '${compilation.clipIds.length} clips • ${DateFormat('MMM d').format(compilation.createdAt)}',
                       style: AppTheme.monoFont(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withOpacity(0.5),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -1538,7 +1640,7 @@ class _CompilationTile extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.delete_outline,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   size: 20,
                 ),
                 onPressed: onDelete,

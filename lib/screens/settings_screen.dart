@@ -104,11 +104,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: AppTheme.accentPresets.entries.map((entry) {
-                    final isSelected = _accentColor.value == entry.value.value;
+                    final isSelected = _accentColor.toARGB32() == entry.value.toARGB32();
                     return GestureDetector(
                       onTap: () {
                         setState(() => _accentColor = entry.value);
-                        widget.storageService.setAccentColor(entry.value.value);
+                        widget.storageService.setAccentColor(entry.value.toARGB32());
                         _updateTheme();
                       },
                       child: Container(
@@ -123,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: entry.value.withOpacity(0.5),
+                                    color: entry.value.withValues(alpha: 0.5),
                                     blurRadius: 8,
                                     spreadRadius: 2,
                                   ),
@@ -153,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       'Fixed Hearth terracotta',
                       style: AppTheme.monoFont(
                         fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -197,7 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setState(() => _crtEffects = value);
                     widget.storageService.setCrtEffects(value);
                   },
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                 ),
               ),
             ],
@@ -256,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() => _captureLocation = value);
                   widget.storageService.setCaptureLocation(value);
                 },
-                activeColor: theme.colorScheme.primary,
+                activeThumbColor: theme.colorScheme.primary,
               ),
             ),
 
@@ -279,7 +279,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await NotificationService.instance.cancelReminder();
                   }
                 },
-                activeColor: theme.colorScheme.primary,
+                activeThumbColor: theme.colorScheme.primary,
               ),
             ),
 
@@ -341,7 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -356,7 +356,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Backup & Restore',
                           style: AppTheme.monoFont(
                             fontSize: 14,
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -407,7 +407,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.2),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -422,7 +422,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'Year in Review',
                           style: AppTheme.monoFont(
                             fontSize: 14,
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -444,7 +444,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 widget.storageService.clipsPath.split('/').last,
                 style: AppTheme.monoFont(
                   fontSize: 12,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -479,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 height: 64,
                 child: CustomPaint(
                   painter: _AppLogoPainter(
-                    color: theme.colorScheme.primary.withOpacity(0.4),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.4),
                     backgroundColor: theme.scaffoldBackgroundColor,
                   ),
                 ),
@@ -493,7 +493,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'ONE SECOND A DAY',
                 style: AppTheme.pixelFont(
                   fontSize: 11,
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -505,7 +505,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 'FOSS • LOCAL-FIRST • NO TELEMETRY',
                 style: AppTheme.monoFont(
                   fontSize: 11,
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
               ),
             ),
@@ -541,7 +541,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.2),
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
           borderRadius: AppTheme.isHearth ? BorderRadius.circular(12) : null,
         ),
@@ -580,7 +580,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.2),
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -590,7 +590,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label,
               style: AppTheme.monoFont(
                 fontSize: 14,
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             Text(

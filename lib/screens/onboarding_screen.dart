@@ -62,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     'SKIP',
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ),
@@ -117,7 +117,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     decoration: BoxDecoration(
                       color: isActive
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withOpacity(0.3),
+                          : theme.colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   );
                 }),
@@ -208,7 +208,7 @@ class _OnboardingPage extends StatelessWidget {
             subtitle,
             style: AppTheme.monoFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),

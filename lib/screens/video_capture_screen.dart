@@ -356,7 +356,6 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return PopScope(
       canPop: !_isProcessing,
       onPopInvokedWithResult: (didPop, _) {
@@ -413,7 +412,7 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
@@ -484,7 +483,7 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withOpacity(0.9),
+                      Colors.black.withValues(alpha: 0.9),
                       Colors.transparent,
                     ],
                   ),
@@ -526,7 +525,6 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
   }
 
   Widget _buildCaptureControls() {
-    final theme = Theme.of(context);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -787,7 +785,7 @@ class _ScanlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(intensity)
+      ..color = Colors.black.withValues(alpha: intensity)
       ..strokeWidth = 1;
 
     for (var y = 0.0; y < size.height; y += 3) {

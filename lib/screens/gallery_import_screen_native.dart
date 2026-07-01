@@ -303,8 +303,6 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return PopScope(
       canPop: !_isProcessing && _selectedFile == null,
       onPopInvokedWithResult: (didPop, _) {
@@ -339,7 +337,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                 widget.date,
                 style: AppTheme.monoFont(
                   fontSize: 10,
-                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -388,7 +386,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             'SELECT MEDIA FOR ${widget.date}',
             style: AppTheme.monoFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 32),
@@ -422,7 +420,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
               'CANCEL IMPORT',
               style: AppTheme.monoFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ),
           ),
@@ -452,7 +450,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                 'This photo will be converted to a ${_selectedDuration.toStringAsFixed(1)}s video.',
                 style: AppTheme.monoFont(
                   fontSize: 12,
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -596,7 +594,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                   'Total: ${_formatTime(_videoDuration!)}',
                   style: AppTheme.monoFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
 
@@ -705,7 +703,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                     border: Border.all(
                       color: isAvailable
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withOpacity(0.3),
+                          : theme.colorScheme.primary.withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -718,7 +716,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                           ? theme.colorScheme.onPrimary
                           : isAvailable
                               ? theme.colorScheme.primary
-                              : theme.colorScheme.primary.withOpacity(0.3),
+                              : theme.colorScheme.primary.withValues(alpha: 0.3),
                     ),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/clip.dart';
+import 'ffmpeg_args.dart';
 import 'file_storage.dart';
 
 // ── JS interop bindings for @ffmpeg/ffmpeg v0.12 UMD (window.FFmpegWASM) ────
@@ -399,8 +400,9 @@ class FfmpegRunner {
       wasmNames.add(name);
     }
 
-    // Write concat list
-    final concatContent = wasmNames.map((n) => "file '$n'").join('\n');
+    // Write concat list (entries quote-escaped via the shared builder —
+    // the wasm names are app-generated, but one canonical writer is safer)
+    final concatContent = wasmNames.map(concatListEntry).join('\n');
     await _write('concat.txt', Uint8List.fromList(utf8.encode(concatContent)));
     onProgress?.call(0.8);
 
@@ -463,9 +465,11 @@ class FfmpegRunner {
         ? '$dateText : ${locationText.toUpperCase()}'
         : dateText;
 
-    // Write text to WASM FS (avoid escaping issues)
+    // Write text to WASM FS. drawtext still applies its text expansion to
+    // textfile content, so the drawtext-special chars are escaped — same
+    // guard as the native twin.
     await _write('ov_text.txt',
-        Uint8List.fromList(utf8.encode(overlayText)));
+        Uint8List.fromList(utf8.encode(escapeDrawtextText(overlayText))));
 
     final fp = _fontLoaded ? FfmpegRunner.fontPath : '';
     final fontSpec = fp.isNotEmpty ? "fontfile='$fp':" : '';

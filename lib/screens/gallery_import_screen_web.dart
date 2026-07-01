@@ -338,7 +338,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                       'Pick video or image files to import as clips.',
                       style: AppTheme.monoFont(
                         fontSize: 11,
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -414,13 +414,13 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.perm_media,
-              size: 64, color: theme.colorScheme.primary.withOpacity(0.3)),
+              size: 64, color: theme.colorScheme.primary.withValues(alpha: 0.3)),
           const SizedBox(height: 16),
           Text(
             'NO FILE SELECTED',
             style: AppTheme.pixelFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
           const SizedBox(height: 8),
@@ -428,7 +428,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             'VIDEOS + IMAGES SUPPORTED',
             style: AppTheme.monoFont(
               fontSize: 11,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
           ),
         ],
@@ -478,7 +478,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                 child: Icon(
                   _isVideo ? Icons.videocam : Icons.image,
                   size: 64,
-                  color: theme.colorScheme.primary.withOpacity(0.4),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
                 ),
               ),
             ),
@@ -665,7 +665,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                               style: AppTheme.monoFont(
                                 fontSize: 11,
                                 color: theme.colorScheme.onSurface
-                                    .withOpacity(0.6),
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],

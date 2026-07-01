@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../widgets/crt_effects.dart';
 
 // Web stub: MediaPickerScreen is not used on web.
 // Gallery import on web goes through GalleryImportScreen (file_picker).

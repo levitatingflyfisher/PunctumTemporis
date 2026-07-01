@@ -94,7 +94,7 @@ String buildMultiTrackFilterGraph(
     final seg = segments[i];
     final inputIdx = i + 1;
     final delayMs = (seg.startTimeInCompilation * 1000).toInt();
-    filters.write('[${inputIdx}:a]');
+    filters.write('[$inputIdx:a]');
     final endTime = seg.audioOffset +
         (seg.duration ?? (videoDuration - seg.startTimeInCompilation));
     if (seg.audioOffset > 0) {
@@ -107,12 +107,12 @@ String buildMultiTrackFilterGraph(
       filters.write('adelay=$delayMs|$delayMs,');
     }
     filters.write('volume=${seg.volume}');
-    filters.write('[a${i}];');
+    filters.write('[a$i];');
   }
 
   filters.write('[orig]');
   for (var i = 0; i < segments.length; i++) {
-    filters.write('[a${i}]');
+    filters.write('[a$i]');
   }
   final totalInputs = segments.length + 1;
   filters.write(

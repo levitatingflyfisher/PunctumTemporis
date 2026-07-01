@@ -1,4 +1,4 @@
-package com.example.one_second_a_day
+package com.openhearth.punctumtemporis
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider

@@ -23,13 +23,13 @@
   <!-- iOS Safari PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="1 Sec/Day">
+  <meta name="apple-mobile-web-app-title" content="Punctum">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="icons/Icon-192.png"/>
 
-  <title>One Second A Day</title>
+  <title>Punctum Temporis</title>
   <link rel="manifest" href="manifest.json">
 
   <!-- iOS PWA install prompt -->
@@ -70,9 +70,34 @@
   <script src="coi-serviceworker.js"></script>
   <!-- ffmpeg.wasm v0.12 — bundled for offline use and SharedArrayBuffer support -->
   <script src="ffmpeg/ffmpeg.js"></script>
-  <script>/* keep local data across sessions (resist eviction on installed PWAs) */if(navigator.storage&&navigator.storage.persist){try{navigator.storage.persist();}catch(e){}}</script>
+<style>
+#oh-boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#FBF8F4;z-index:99999;transition:opacity .35s ease}
+#oh-boot .s{width:42px;height:42px;border:3px solid #ece3d9;border-top-color:#A85040;border-radius:50%;animation:ohspin .8s linear infinite}
+@keyframes ohspin{to{transform:rotate(360deg)}}
+@media(prefers-color-scheme:dark){#oh-boot{background:#1b1714}#oh-boot .s{border-color:#352b25;border-top-color:#C47B6A}}
+</style>
+<script>
+(function(){
+  // Self-heal stale PWA caches: when a new service worker takes over after a
+  // redeploy, reload once so a returning visitor never sees a blank stale shell.
+  // Ask the browser to keep local data (IndexedDB / OPFS) across sessions
+  // so an installed-to-home-screen PWA is not evicted under storage pressure.
+  if(navigator.storage&&navigator.storage.persist){try{navigator.storage.persist();}catch(e){}}
+  if('serviceWorker' in navigator){var done=false;
+    navigator.serviceWorker.addEventListener('controllerchange',function(){if(done)return;done=true;location.reload();});
+    navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.update();});}).catch(function(){});}
+  // Remove the boot spinner once Flutter has painted (or after a hard timeout).
+  var iv=setInterval(function(){
+    if(document.querySelector('flt-glass-pane,flutter-view,flt-scene-host')){
+      clearInterval(iv);var b=document.getElementById('oh-boot');
+      if(b){b.style.opacity='0';setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},400);}
+    }},150);
+  setTimeout(function(){var b=document.getElementById('oh-boot');if(b&&b.parentNode)b.parentNode.removeChild(b);},25000);
+})();
+</script>
 </head>
 <body>
+<div id="oh-boot"><div class="s"></div></div>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

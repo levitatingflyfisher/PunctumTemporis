@@ -1,0 +1,5 @@
+{
+  "_notes": "Baseline+5%, measured 2026-07-17 from the on-disk deploy build: gzip -c build/web/main.dart.js | wc -c = 1022284; stat build/app/outputs/flutter-apk/app-arm64-v8a-release.apk = 100235948.",
+  "main_dart_js_gz_max_bytes": 1073399,
+  "apk_arm64_max_bytes": 105247746
+}

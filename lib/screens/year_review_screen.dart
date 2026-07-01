@@ -89,7 +89,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     width: 12,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withOpacity(0.05),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
                       borderRadius:
                           AppTheme.isModern ? BorderRadius.circular(2) : null,
                     ),
@@ -98,7 +98,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                   Text('Less',
                       style: AppTheme.monoFont(
                           fontSize: 9,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5))),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
                   const SizedBox(width: 4),
                   for (final opacity in [0.3, 0.6, 1.0])
                     Padding(
@@ -107,7 +107,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         width: 12,
                         height: 12,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withOpacity(opacity),
+                          color: theme.colorScheme.primary.withValues(alpha: opacity),
                           borderRadius: AppTheme.isModern
                               ? BorderRadius.circular(2)
                               : null,
@@ -118,7 +118,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                   Text('More',
                       style: AppTheme.monoFont(
                           fontSize: 9,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5))),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
                   const Spacer(),
                   Text(
                     'STREAK: $longestStreak',
@@ -195,13 +195,13 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     children: [
                       Icon(Icons.videocam_off,
                           size: 48,
-                          color: theme.colorScheme.onSurface.withOpacity(0.3)),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(height: 16),
                       Text(
                         'NO CLIPS FOR $_selectedYear',
                         style: AppTheme.pixelFont(
                           fontSize: 10,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -209,7 +209,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         'Start capturing to see your year in review!',
                         style: AppTheme.monoFont(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurface.withOpacity(0.4),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                         ),
                       ),
                     ],
@@ -340,7 +340,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                             style: AppTheme.monoFont(
                               fontSize: 9,
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.5),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         );
@@ -368,7 +368,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         weekdayLabels[i],
                         style: AppTheme.monoFont(
                           fontSize: 9,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -388,7 +388,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     cellSize: cellSize,
                     cellGap: cellGap,
                     primaryColor: theme.colorScheme.primary,
-                    emptyColor: theme.colorScheme.onSurface.withOpacity(0.05),
+                    emptyColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
               ),
@@ -452,7 +452,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     decoration: BoxDecoration(
                       color: count > 0
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withOpacity(0.1),
+                          : theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: AppTheme.isModern
                           ? const BorderRadius.vertical(top: Radius.circular(4))
                           : null,
@@ -463,7 +463,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     monthNames[i],
                     style: AppTheme.monoFont(
                       fontSize: 8,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -540,7 +540,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         height: 16,
                         width: constraints.maxWidth * fraction,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withOpacity(0.7),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.7),
                           borderRadius: AppTheme.isModern
                               ? BorderRadius.circular(4)
                               : null,
@@ -634,7 +634,7 @@ class _StatCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.3),
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
           ),
           borderRadius: AppTheme.isModern ? BorderRadius.circular(8) : null,
         ),
@@ -652,7 +652,7 @@ class _StatCard extends StatelessWidget {
               label,
               style: AppTheme.monoFont(
                 fontSize: 9,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -751,9 +751,9 @@ class _HeatmapPainter extends CustomPainter {
       if (count == 0) {
         color = emptyColor;
       } else if (count == 1) {
-        color = primaryColor.withOpacity(0.3);
+        color = primaryColor.withValues(alpha: 0.3);
       } else if (count == 2) {
-        color = primaryColor.withOpacity(0.6);
+        color = primaryColor.withValues(alpha: 0.6);
       } else {
         color = primaryColor;
       }

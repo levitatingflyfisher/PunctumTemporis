@@ -333,7 +333,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter name...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -343,7 +343,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color:
-                                  theme.colorScheme.primary.withOpacity(0.5)),
+                                  theme.colorScheme.primary.withValues(alpha: 0.5)),
                           borderRadius: BorderRadius.zero,
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -379,7 +379,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                   'KNOWN PEOPLE',
                   style: AppTheme.pixelFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -396,7 +396,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(0.5),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -505,7 +505,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter location...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface.withOpacity(0.3),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -515,7 +515,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                               color:
-                                  theme.colorScheme.primary.withOpacity(0.5)),
+                                  theme.colorScheme.primary.withValues(alpha: 0.5)),
                           borderRadius: BorderRadius.zero,
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -555,7 +555,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                   'PREVIOUS LOCATIONS',
                   style: AppTheme.pixelFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -573,7 +573,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(0.5),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -792,7 +792,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -855,7 +855,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                     if (!kIsWeb) ...[
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
@@ -870,7 +870,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                     ],
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -892,7 +892,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.9),
+                    color: Colors.black.withValues(alpha: 0.9),
                     border: Border(
                       top: BorderSide(
                           color: theme.colorScheme.primary, width: 2),
@@ -1021,7 +1021,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                       color: theme.colorScheme.onSurface
-                                          .withOpacity(0.3)),
+                                          .withValues(alpha: 0.3)),
                                 ),
                                 child: Text(
                                   'CANCEL',
@@ -1070,7 +1070,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -1157,7 +1157,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.6),
+                                    color: Colors.black.withValues(alpha: 0.6),
                                     border: Border.all(
                                         color: theme.colorScheme.primary),
                                   ),
@@ -1185,10 +1185,10 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 border: Border.all(
                                   color: theme.colorScheme.primary
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Row(
@@ -1227,7 +1227,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.6),
+                                  color: Colors.black.withValues(alpha: 0.6),
                                   border: Border.all(
                                       color: theme.colorScheme.primary),
                                 ),
@@ -1266,9 +1266,9 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 5),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.6),
+                                      color: Colors.black.withValues(alpha: 0.6),
                                       border: Border.all(
-                                        color: Colors.amber.withOpacity(0.7),
+                                        color: Colors.amber.withValues(alpha: 0.7),
                                       ),
                                     ),
                                     child: Row(
@@ -1302,10 +1302,10 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 border: Border.all(
                                   color: theme.colorScheme.primary
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Row(
@@ -1331,10 +1331,10 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
+                              color: Colors.black.withValues(alpha: 0.6),
                               border: Border.all(
                                 color: theme.colorScheme.onSurface
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
@@ -1343,14 +1343,14 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                 Icon(Icons.face_retouching_natural,
                                     size: 14,
                                     color: theme.colorScheme.onSurface
-                                        .withOpacity(0.3)),
+                                        .withValues(alpha: 0.3)),
                                 const SizedBox(width: 4),
                                 Text(
                                   'FACE SCAN UNAVAILABLE',
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
                                     color: theme.colorScheme.onSurface
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                   ),
                                 ),
                               ],
@@ -1520,7 +1520,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
                     hintText: 'Enter new tag...',
                     hintStyle: AppTheme.monoFont(
                       fontSize: 14,
-                      color: theme.colorScheme.onSurface.withOpacity(0.3),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide(color: theme.colorScheme.primary),
@@ -1528,7 +1528,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                          color: theme.colorScheme.primary.withOpacity(0.5)),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.5)),
                       borderRadius: BorderRadius.zero,
                     ),
                     focusedBorder: OutlineInputBorder(
@@ -1562,7 +1562,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
               'NEW TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 6),
@@ -1621,7 +1621,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
               'EXISTING TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 6),
@@ -1650,7 +1650,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
                       border: Border.all(
                         color: selected
                             ? theme.colorScheme.primary
-                            : theme.colorScheme.primary.withOpacity(0.5),
+                            : theme.colorScheme.primary.withValues(alpha: 0.5),
                       ),
                     ),
                     child: Row(
@@ -1720,9 +1720,9 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.5),
+          color: theme.colorScheme.primary.withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -1825,7 +1825,7 @@ class _FaceBoundingBoxPainter extends CustomPainter {
         textPainter.width + 8,
         textPainter.height + 4,
       );
-      canvas.drawRect(labelBg, Paint()..color = color.withOpacity(0.8));
+      canvas.drawRect(labelBg, Paint()..color = color.withValues(alpha: 0.8));
       textPainter.paint(canvas, Offset(labelBg.left + 4, labelBg.top + 2));
     }
   }

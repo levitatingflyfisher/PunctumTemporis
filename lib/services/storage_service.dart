@@ -8,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/clip.dart';
 import '../platform/file_storage.dart';
+import 'face_crop.dart';
+import '../utils/date_arithmetic.dart';
+import '../utils/person_name.dart';
 import '../utils/date_format_util.dart';
 
 class StorageService {
@@ -34,6 +37,7 @@ class StorageService {
   static const _includeLocationOverlayKey = 'include_location_overlay';
   static const _clipsMigratedKey = 'clips_migrated_v2';
   static const _visualStyleKey = 'visual_style';
+  static const _includeMontagesInBackupKey = 'backup_include_montages';
   static const _pinnedTagsKey = 'pinned_tags';
   static const _pinnedLocationsKey = 'pinned_locations';
 
@@ -197,16 +201,20 @@ class StorageService {
 
   void _updateWidget() {
     if (kIsWeb) return;
+    // Fire-and-forget by design — but the plugin calls return futures, so a
+    // channel failure surfaces ASYNCHRONOUSLY and sails past a plain
+    // try/catch as an unhandled error. Each future needs its own handler.
     try {
       final streak = getCurrentStreak();
       final today = DateFormatUtil.format(DateTime.now(), DateFormatOption.isoDate);
       final capturedToday = _clips.containsKey(today);
-      HomeWidget.saveWidgetData<int>('streak', streak);
-      HomeWidget.saveWidgetData<bool>('captured_today', capturedToday);
+      HomeWidget.saveWidgetData<int>('streak', streak).catchError((_) => null);
+      HomeWidget.saveWidgetData<bool>('captured_today', capturedToday)
+          .catchError((_) => null);
       HomeWidget.updateWidget(
         name: 'OneSecondWidget',
-        qualifiedAndroidName: 'com.example.one_second_a_day.OneSecondWidget',
-      );
+        qualifiedAndroidName: 'com.openhearth.punctumtemporis.OneSecondWidget',
+      ).catchError((_) => null);
     } catch (_) {}
   }
 
@@ -337,8 +345,13 @@ class StorageService {
   Future<void> addCompilation(Compilation compilation) async {
     _compilations.add(compilation);
     await _saveMetadata();
+    // Gallery refresh is a courtesy on top of an already-saved row — a
+    // scanner hiccup (or a montage restored into the private dir, which
+    // the gallery can't index anyway) must never surface as a failure.
     if (!kIsWeb) {
-      await MediaScanner.loadMedia(path: compilation.filePath);
+      try {
+        await MediaScanner.loadMedia(path: compilation.filePath);
+      } catch (_) {}
     }
   }
 
@@ -354,10 +367,15 @@ class StorageService {
 
   int get totalClips => _clips.values.fold(0, (sum, list) => sum + list.length);
 
-  int getCurrentStreak() {
+  int getCurrentStreak({DateTime? now}) {
     if (_clips.isEmpty) return 0;
     var streak = 0;
-    var date = DateTime.now();
+    // Walk backward in UTC-midnight space (see utcMidnight): subtracting
+    // 24h from a local DateTime drifts an hour across a DST transition, and
+    // the walk can then skip a wall-clock day entirely — silently breaking
+    // a real streak. In UTC every step lands exactly one calendar day back,
+    // and the formatted day key is unchanged (yyyy-MM-dd reads the fields).
+    var date = utcMidnight(now ?? DateTime.now());
     // If today has no clip yet, start counting from yesterday so a
     // multi-day streak is not broken before the day's clip is recorded.
     if (!_clips.containsKey(DateFormatUtil.format(date, DateFormatOption.isoDate))) {
@@ -383,7 +401,10 @@ class StorageService {
     for (var i = 1; i < dates.length; i++) {
       final prev = DateTime.parse(dates[i - 1]);
       final curr = DateTime.parse(dates[i]);
-      final diff = curr.difference(prev).inDays;
+      // Calendar days, not elapsed-hours/24: parsed local midnights are 23h
+      // apart across spring-forward, which a naive inDays truncates to 0
+      // and wrongly splits a real streak (same class as getCurrentStreak).
+      final diff = daysBetweenDates(prev, curr);
       if (diff == 1) {
         current++;
         if (current > longest) longest = current;
@@ -419,6 +440,15 @@ class StorageService {
   String getVisualStyle() => _prefs.getString(_visualStyleKey) ?? 'hearth';
   Future<void> setVisualStyle(String style) =>
       _prefs.setString(_visualStyleKey, style);
+
+  /// Whether backups carry the montage MP4s themselves (ON by default —
+  /// montages are the point of the app; the recipe alone can't reproduce
+  /// one whose music file is gone). Device-local, like the migration
+  /// flags: deliberately NOT in the settings allowlist that travels.
+  bool getIncludeMontagesInBackup() =>
+      _prefs.getBool(_includeMontagesInBackupKey) ?? true;
+  Future<void> setIncludeMontagesInBackup(bool enabled) =>
+      _prefs.setBool(_includeMontagesInBackupKey, enabled);
 
   Map<String, List<List<double>>> _knownPeople = {};
   Map<String, List<List<double>>> get knownPeople =>
@@ -470,7 +500,9 @@ class StorageService {
     final counts = <String, int>{};
     for (final entry in _clips.entries) {
       if (entry.key.compareTo(startDate) < 0 ||
-          entry.key.compareTo(endDate) > 0) continue;
+          entry.key.compareTo(endDate) > 0) {
+        continue;
+      }
       for (final clip in entry.value) {
         if (clip.locationLabel != null && clip.locationLabel!.isNotEmpty) {
           counts[clip.locationLabel!] = (counts[clip.locationLabel!] ?? 0) + 1;
@@ -484,7 +516,9 @@ class StorageService {
     final counts = <String, int>{};
     for (final entry in _clips.entries) {
       if (entry.key.compareTo(startDate) < 0 ||
-          entry.key.compareTo(endDate) > 0) continue;
+          entry.key.compareTo(endDate) > 0) {
+        continue;
+      }
       for (final clip in entry.value) {
         for (final tag in clip.tags) {
           counts[tag] = (counts[tag] ?? 0) + 1;
@@ -498,7 +532,9 @@ class StorageService {
     final counts = <String, int>{};
     for (final entry in _clips.entries) {
       if (entry.key.compareTo(startDate) < 0 ||
-          entry.key.compareTo(endDate) > 0) continue;
+          entry.key.compareTo(endDate) > 0) {
+        continue;
+      }
       for (final clip in entry.value) {
         for (final face in clip.detectedFaces) {
           counts[face] = (counts[face] ?? 0) + 1;
@@ -589,18 +625,36 @@ class StorageService {
 
   /// Returns the face reference image path, or null if not found.
   String? getFaceImagePath(String name) {
+    if (!isSafePersonName(name)) return null; // never resolve outside faces/
     final path = '$_facesDir/$name.jpg';
     if (FileStorage.existsSync(path)) return path;
     return null;
   }
 
   /// Save a cropped face image as a reference for a named person.
+  /// A name that is not a safe basename is refused before any file op —
+  /// '$_facesDir/$name.jpg' with a '/' or '..' in the name would write
+  /// outside the faces dir.
   Future<void> saveFaceImage(
       String name, String sourceImagePath, Rect boundingBox) async {
+    if (!isSafePersonName(name)) {
+      debugPrint('Refusing unsafe person name for face image: $name');
+      return;
+    }
     try {
       await FileStorage.ensureDir(_facesDir);
       final destPath = '$_facesDir/$name.jpg';
-      await FileStorage.copyFile(sourceImagePath, destPath);
+      // Store only the detected face, not the whole frame (privacy): crop the
+      // source to the bounding box. Fall back to copying if the source can't be
+      // read/decoded so a face isn't lost.
+      final sourceBytes = await FileStorage.readBytes(sourceImagePath);
+      final cropped =
+          sourceBytes != null ? cropFaceJpg(sourceBytes, boundingBox) : null;
+      if (cropped != null) {
+        await FileStorage.writeBytes(destPath, cropped);
+      } else {
+        await FileStorage.copyFile(sourceImagePath, destPath);
+      }
     } catch (e) {
       debugPrint('Failed to save face image: $e');
     }

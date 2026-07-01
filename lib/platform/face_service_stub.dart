@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
 
 // Stub data types — mirrors face_service_impl.dart public API
 class FaceDetectionResult {

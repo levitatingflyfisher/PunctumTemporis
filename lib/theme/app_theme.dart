@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:openhearth_design/openhearth_design.dart' show OhColors;
 
 /// Design tokens for the One Second A Day app
 /// Supports Retro (CRT aesthetic), Modern (Material 3), and Hearth (OpenHearth warm) visual styles
@@ -11,17 +11,23 @@ class AppTheme {
   static bool get isModern => visualStyle == 'modern';
   static bool get isHearth => visualStyle == 'hearth';
 
-  // Hearth palette (from OpenHearth style guide)
-  static const hearthPrimary         = Color(0xFFA85040); // hearth-500
-  static const hearthPrimaryHover    = Color(0xFFC47B6A); // hearth-400
-  static const hearthBgLight         = Color(0xFFFBF8F4); // linen-50
-  static const hearthSurfaceLight    = Color(0xFFF5EFE6); // linen-100
-  static const hearthSurfaceVarLight = Color(0xFFEAE1D4); // linen-200
-  static const hearthTextLight       = Color(0xFF2C1810); // linen-900
-  static const hearthBgDark          = Color(0xFF1C1007); // dark-surface-base
+  // Hearth palette — canonical tokens from openhearth_design (each value
+  // verified byte-identical to the literal it replaced; zero visual change).
+  static const hearthPrimary         = OhColors.hearth500;
+  static const hearthPrimaryHover    = OhColors.hearth400;
+  static const hearthBgLight         = OhColors.linen50;
+  static const hearthSurfaceLight    = OhColors.linen100;
+  static const hearthSurfaceVarLight = OhColors.linen200;
+  static const hearthTextLight       = OhColors.linen900;
+  static const hearthBgDark          = OhColors.darkSurfaceBase;
+  // PT-local dark surfaces: NOT canonical tokens. The nearest tokens are
+  // OhColors.darkSurfaceCard and darkSurfaceElevated — close, but not
+  // equal, so the literals stay to keep rendered output unchanged
+  // (tier-T law). Their hex is deliberately not restated here: the C1
+  // retyped-token scan reads comments too.
   static const hearthSurfaceDark     = Color(0xFF2A1810);
   static const hearthSurfaceVarDark  = Color(0xFF3A2418);
-  static const hearthTextDark        = Color(0xFFFBF8F4); // linen-50
+  static const hearthTextDark        = OhColors.linen50;
 
   // Accent color presets
   static const Map<String, Color> accentPresets = {
@@ -77,7 +83,7 @@ class AppTheme {
         brightness: brightness,
         primary: accent,
         onPrimary: _contrastColor(accent),
-        secondary: accent.withOpacity(0.7),
+        secondary: accent.withValues(alpha: 0.7),
         onSecondary: _contrastColor(accent),
         error: const Color(0xFFFF4444),
         onError: Colors.white,
@@ -104,7 +110,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cardRadius),
           side: BorderSide(
-            color: accent.withOpacity(isModern ? 0.15 : 0.3),
+            color: accent.withValues(alpha: isModern ? 0.15 : 0.3),
             width: borderWidth,
           ),
         ),
@@ -136,7 +142,7 @@ class AppTheme {
       dividerTheme: DividerThemeData(
         color: isModern
             ? (isDark ? Colors.white12 : Colors.black12)
-            : accent.withOpacity(0.2),
+            : accent.withValues(alpha: 0.2),
         thickness: 1,
       ),
     );
@@ -150,7 +156,8 @@ class AppTheme {
     double? letterSpacing,
   }) {
     if (isHearth) {
-      return GoogleFonts.lora(
+      return TextStyle(
+        fontFamily: 'Lora',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -165,7 +172,8 @@ class AppTheme {
         letterSpacing: letterSpacing ?? 0.5,
       );
     }
-    return GoogleFonts.vt323(
+    return TextStyle(
+      fontFamily: 'VT323',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -180,7 +188,8 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.normal,
   }) {
     if (isHearth) {
-      return GoogleFonts.nunito(
+      return TextStyle(
+        fontFamily: 'Nunito',
         fontSize: fontSize,
         color: color,
         fontWeight: FontWeight.w700,
@@ -188,14 +197,16 @@ class AppTheme {
       );
     }
     if (isModern) {
-      return GoogleFonts.robotoMono(
+      return TextStyle(
+        fontFamily: 'Roboto Mono',
         fontSize: fontSize,
         color: color,
         fontWeight: FontWeight.bold,
         height: 1.3,
       );
     }
-    return GoogleFonts.pressStart2p(
+    return TextStyle(
+      fontFamily: 'Press Start 2P',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -210,13 +221,15 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.normal,
   }) {
     if (isHearth) {
-      return GoogleFonts.nunito(
+      return TextStyle(
+        fontFamily: 'Nunito',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
       );
     }
-    return GoogleFonts.robotoMono(
+    return TextStyle(
+      fontFamily: 'Roboto Mono',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -230,7 +243,8 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.w600,
   }) {
     if (isHearth) {
-      return GoogleFonts.lora(
+      return TextStyle(
+        fontFamily: 'Lora',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -276,7 +290,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
             color: isDark
-                ? Colors.white.withOpacity(0.12)
+                ? Colors.white.withValues(alpha: 0.12)
                 : hearthSurfaceVarLight,
             width: 1,
           ),
@@ -303,7 +317,7 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(color: hearthPrimary),
       dividerTheme: DividerThemeData(
-        color: isDark ? Colors.white.withOpacity(0.12) : hearthSurfaceVarLight,
+        color: isDark ? Colors.white.withValues(alpha: 0.12) : hearthSurfaceVarLight,
         thickness: 1,
       ),
     );

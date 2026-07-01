@@ -1,7 +1,7 @@
 name: one_second_a_day
 description: Capture one second of video every day. Retro aesthetic, local-first.
 publish_to: 'none'
-version: 1.3.0+4
+version: 1.5.0+6
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -13,7 +13,7 @@ dependencies:
   # Camera & Media
   camera: ^0.10.6
   video_player: ^2.8.2
-  image_picker: ^1.0.7
+  image: ^4.0.0 # crop face thumbnails to the detected box (privacy)
   media_scanner: ^2.1.0
   photo_manager: ^3.6.0
   
@@ -38,23 +38,36 @@ dependencies:
 
   # Backup & Sharing
   archive: ^4.0.0
+  # Snapshot-vault primitives (BackupVault/FileVaultStore) for the
+  # metadata vault + mandatory pre-restore snapshot. PT stays plaintext —
+  # it uses the retention machinery, not the crypto flows.
+  sanctuary_backup_ui:
+    path: ../packages/sanctuary_backup_ui
   share_plus: ^10.0.0
 
   # Home Screen Widget
   home_widget: ^0.6.0
 
   # UI
-  google_fonts: ^7.0.2
-  permission_handler: ^12.0.1
   intl: ^0.20.2
   uuid: ^4.3.3
+  # Canonical OpenHearth design tokens — PT's Hearth style reads its
+  # palette from here instead of hard-coding the hex values (tier-T:
+  # values are byte-identical, zero visual change).
+  openhearth_design:
+    path: ../ohStyle/openhearth_design
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
+  # Fleet standards as tests that can fail (test/fleet_conformance_test.dart).
+  oh_fleet_conformance:
+    path: ../packages/oh_fleet_conformance
 
+  # Tests mock the path_provider platform channel directly.
+  path_provider_platform_interface: ^2.1.2
 flutter:
   uses-material-design: true
   
@@ -63,7 +76,38 @@ flutter:
     - assets/models/
     - assets/data/
     - assets/fonts/
-  
+
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Regular.ttf
+        - asset: assets/fonts/Lora-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Lora-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Lora-Bold.ttf
+          weight: 700
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+    - family: VT323
+      fonts:
+        - asset: assets/fonts/VT323-Regular.ttf
+    - family: Press Start 2P
+      fonts:
+        - asset: assets/fonts/PressStart2P-Regular.ttf
+    - family: Roboto Mono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+          weight: 700
+
 flutter_launcher_icons:
   android: true
   ios: false

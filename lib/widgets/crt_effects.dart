@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -43,7 +41,7 @@ class _ScanlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(intensity)
+      ..color = Colors.black.withValues(alpha: intensity)
       ..strokeWidth = 1;
 
     // Draw horizontal scanlines
@@ -139,10 +137,10 @@ class _RetroButtonState extends State<RetroButton> {
             decoration: BoxDecoration(
               color: buttonColor,
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: buttonColor.withOpacity(0.8), width: 1),
+              border: Border.all(color: buttonColor.withValues(alpha: 0.8), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(_pressed ? 0.1 : 0.2),
+                  color: Colors.black.withValues(alpha: _pressed ? 0.1 : 0.2),
                   offset: Offset(0, _pressed ? 1 : 3),
                   blurRadius: _pressed ? 4 : 8,
                 ),
@@ -180,7 +178,7 @@ class _RetroButtonState extends State<RetroButton> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: buttonColor,
-              border: Border.all(color: buttonColor.withOpacity(0.8), width: 2),
+              border: Border.all(color: buttonColor.withValues(alpha: 0.8), width: 2),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black87,
@@ -251,7 +249,7 @@ class _RetroIconButtonState extends State<RetroIconButton> {
               BoxShadow(
                 color: AppTheme.isHearth
                     ? const Color(0x1A2C1810)
-                    : Colors.black.withOpacity(0.15),
+                    : Colors.black.withValues(alpha: 0.15),
                 offset: const Offset(0, 2),
                 blurRadius: 6,
               ),
@@ -343,7 +341,7 @@ class RetroProgressBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: fillColor.withOpacity(0.3), width: 1),
+          border: Border.all(color: fillColor.withValues(alpha: 0.3), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
@@ -405,11 +403,11 @@ class GlowBorder extends StatelessWidget {
     if (!AppTheme.isRetro) {
       return Container(
         decoration: BoxDecoration(
-          border: Border.all(color: color.withOpacity(0.5), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.5), width: 1),
           borderRadius: BorderRadius.circular(AppTheme.isHearth ? 12 : 8),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               blurRadius: glowRadius,
               spreadRadius: 0,
             ),
@@ -424,7 +422,7 @@ class GlowBorder extends StatelessWidget {
         border: Border.all(color: color, width: borderWidth),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.5),
+            color: color.withValues(alpha: 0.5),
             blurRadius: glowRadius,
             spreadRadius: 0,
           ),
@@ -488,7 +486,7 @@ class _BlinkingIndicatorState extends State<BlinkingIndicator>
                   : null,
               boxShadow: [
                 BoxShadow(
-                  color: widget.color.withOpacity(0.5),
+                  color: widget.color.withValues(alpha: 0.5),
                   blurRadius: 4,
                 ),
               ],
@@ -542,7 +540,7 @@ class _RecordingIndicatorState extends State<RecordingIndicator>
             color: Colors.red,
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withOpacity(0.5 + _controller.value * 0.5),
+                color: Colors.red.withValues(alpha: 0.5 + _controller.value * 0.5),
                 blurRadius: 4 + _controller.value * 8,
                 spreadRadius: _controller.value * 4,
               ),
@@ -580,12 +578,12 @@ class RetroCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: border.withOpacity(0.15), width: 1),
+          border: Border.all(color: border.withValues(alpha: 0.15), width: 1),
           boxShadow: [
             BoxShadow(
               color: AppTheme.isHearth
                   ? const Color(0x172C1810)
-                  : Colors.black.withOpacity(0.12),
+                  : Colors.black.withValues(alpha: 0.12),
               offset: const Offset(0, 2),
               blurRadius: 8,
             ),

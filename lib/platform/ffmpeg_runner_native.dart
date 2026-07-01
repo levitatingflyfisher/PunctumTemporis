@@ -6,6 +6,7 @@ import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:ffmpeg_kit_flutter_new/ffprobe_kit.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/clip.dart';
+import 'ffmpeg_args.dart';
 
 /// Native (Android) FFmpeg runner — thin static wrappers around FFmpegKit.
 /// All paths are real filesystem paths. Temp files use the system temp dir.
@@ -22,6 +23,19 @@ class FfmpegRunner {
 
   static Future<bool> _run(String command) async {
     final session = await FFmpegKit.execute(command);
+    final rc = await session.getReturnCode();
+    if (!ReturnCode.isSuccess(rc)) {
+      final logs = await session.getAllLogsAsString();
+      debugPrint('FFmpegKit failed: $logs');
+      return false;
+    }
+    return true;
+  }
+
+  /// Discrete-argv variant — no quoting layer, so a quote/backslash in a
+  /// path is data, never structure (see ffmpeg_args.dart).
+  static Future<bool> _runArgs(List<String> args) async {
+    final session = await FFmpegKit.executeWithArguments(args);
     final rc = await session.getReturnCode();
     if (!ReturnCode.isSuccess(rc)) {
       final logs = await session.getAllLogsAsString();
@@ -158,9 +172,12 @@ class FfmpegRunner {
       }
     }
 
+    // Quote-escaped entries: a ' in a clip path must stay data, never a
+    // token boundary the concat demuxer would parse past (-safe 0 would
+    // then follow an injected absolute path).
     final concatFile = File('$tmpDir/concat_list.txt');
     await concatFile.writeAsString(
-        normalizedPaths.map((p) => "file '$p'").join('\n'));
+        normalizedPaths.map(concatListEntry).join('\n'));
 
     if (onProgress != null) {
       FFmpegKitConfig.enableStatisticsCallback((statistics) {
@@ -171,12 +188,10 @@ class FfmpegRunner {
       });
     }
 
-    final command = '-y -f concat -safe 0 -i "${concatFile.path}" '
-        '-c:v libx264 -crf 23 -preset fast '
-        '-c:a aac -b:a 128k '
-        '"$outputPath"';
-
-    final ok = await _run(command);
+    final ok = await _runArgs(buildConcatArgs(
+      concatListPath: concatFile.path,
+      outputPath: outputPath,
+    ));
     await concatFile.delete();
     for (final p in tempToClean) {
       try {
@@ -219,19 +234,24 @@ class FfmpegRunner {
         ? '$dateText : ${locationText.toUpperCase()}'
         : dateText;
 
+    // The overlay text is user-influenced (location name): escape the
+    // drawtext-special chars so ffmpeg draws it literally instead of
+    // expanding/parsing it. Only app-controlled paths enter the filter.
     final tmpDir = await _tmpDir();
     final textFile =
         File('$tmpDir/overlay_text_${DateTime.now().millisecondsSinceEpoch}.txt');
-    await textFile.writeAsString(overlayText);
+    await textFile.writeAsString(escapeDrawtextText(overlayText));
 
     final fp = fontPath.isEmpty ? FfmpegRunner.fontPath : fontPath;
-    final command = '-y -i "$inputPath" '
-        '-vf "drawtext=fontfile=\'$fp\':textfile=\'${textFile.path}\':x=$x:y=$y:fontsize=$fontSize:fontcolor=white:borderw=3:bordercolor=black" '
-        '-c:v libx264 -pix_fmt yuv420p -r 30 -crf 23 -preset fast '
-        '-c:a aac -ar 44100 -ac 2 -b:a 128k '
-        '"$outputPath"';
-
-    final ok = await _run(command);
+    final ok = await _runArgs(buildDateOverlayArgs(
+      inputPath: inputPath,
+      outputPath: outputPath,
+      fontPath: fp,
+      textFilePath: textFile.path,
+      x: x,
+      y: y,
+      fontSize: fontSize,
+    ));
     try {
       await textFile.delete();
     } catch (_) {}
@@ -271,7 +291,7 @@ class FfmpegRunner {
       inputs.write('-i "${seg.filePath}" ');
     }
     final filterGraph = _buildMultiTrackFilterGraph(segments, originalVolume, vDur);
-    final command = '${inputs}-filter_complex "$filterGraph" '
+    final command = '$inputs-filter_complex "$filterGraph" '
         '-map 0:v -map "[aout]" '
         '-c:v copy -c:a aac -b:a 128k $df'
         '"$outputPath"';

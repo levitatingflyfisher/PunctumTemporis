@@ -9,7 +9,6 @@ import '../widgets/crt_effects.dart';
 import 'video_capture_screen.dart';
 import 'photo_capture_screen.dart';
 import 'gallery_import_screen.dart';
-import 'clip_preview_screen.dart';
 import 'day_view_screen.dart';
 import 'compilation_screen.dart';
 import 'settings_screen.dart';
@@ -128,7 +127,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 _getMilestoneMessage(days),
                 style: AppTheme.monoFont(
                   fontSize: 14,
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -210,7 +209,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   void _showClipsForDate(DateTime date, List<clip_model.Clip> clips) {
     final theme = Theme.of(context);
-
     showModalBottomSheet(
       context: context,
       backgroundColor: theme.colorScheme.surface,
@@ -253,7 +251,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: theme.colorScheme.primary.withOpacity(0.3),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -295,7 +293,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
                                     color: theme.colorScheme.onSurface
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                   ),
                                 ),
                               ],
@@ -502,7 +500,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 4),
@@ -516,10 +514,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (selected)
+                      if (selected) {
                         _filterTags.remove(tag);
-                      else
+                      } else {
                         _filterTags.add(tag);
+                      }
                     });
                   },
                   onLongPress: () =>
@@ -555,7 +554,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'LOCATIONS',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 4),
@@ -569,10 +568,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (selected)
+                      if (selected) {
                         _filterLocations.remove(loc);
-                      else
+                      } else {
                         _filterLocations.add(loc);
+                      }
                     });
                   },
                   onLongPress: () =>
@@ -619,7 +619,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'PEOPLE',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 4),
@@ -631,10 +631,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (selected)
+                      if (selected) {
                         _filterPeople.remove(name);
-                      else
+                      } else {
                         _filterPeople.add(name);
+                      }
                     });
                   },
                   child: Container(
@@ -683,7 +684,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 'CLEAR FILTERS',
                 style: AppTheme.monoFont(
                   fontSize: 11,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -729,7 +730,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             Icons.tune,
                             color: _isSearchOpen
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withOpacity(0.6),
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                           onPressed: () =>
                               setState(() => _isSearchOpen = !_isSearchOpen),
@@ -835,7 +836,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               style: AppTheme.monoFont(
                                 fontSize: 14,
                                 color:
-                                    theme.colorScheme.onSurface.withOpacity(0.5),
+                                    theme.colorScheme.onSurface.withValues(alpha: 0.5),
                               ),
                             ),
                           ],
@@ -890,7 +891,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                         style: AppTheme.monoFont(
                                           fontSize: 12,
                                           color: theme.colorScheme.onSurface
-                                              .withOpacity(0.5),
+                                              .withValues(alpha: 0.5),
                                         ),
                                       ),
                                     ),
@@ -917,7 +918,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: theme.colorScheme.primary.withOpacity(0.2),
+                              color: theme.colorScheme.primary.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -1017,8 +1018,6 @@ class _CalendarGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     // Calculate grid
     final firstDay = DateTime(month.year, month.month, 1);
     final lastDay = DateTime(month.year, month.month + 1, 0);
@@ -1135,7 +1134,7 @@ class _DayCell extends StatelessWidget {
       );
     } else {
       bgColor = Colors.transparent;
-      textColor = theme.colorScheme.onSurface.withOpacity(0.6);
+      textColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
     }
 
     return GestureDetector(
@@ -1236,7 +1235,7 @@ class _StatItem extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTheme.monoFont(
             fontSize: 11,
-            color: theme.colorScheme.onSurface.withOpacity(0.5),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
           ),
         ),
       ],
@@ -1267,7 +1266,7 @@ class _CaptureOption extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.3),
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -1302,7 +1301,7 @@ class _CaptureOption extends StatelessWidget {
                   subtitle,
                   style: AppTheme.monoFont(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -1356,7 +1355,7 @@ class _CelebrationPainter extends CustomPainter {
 
     // Dots scattered around
     final dotPaint = Paint()..style = PaintingStyle.fill;
-    final colors = [color, color.withOpacity(0.7), color.withOpacity(0.4)];
+    final colors = [color, color.withValues(alpha: 0.7), color.withValues(alpha: 0.4)];
     for (var i = 0; i < 20; i++) {
       final angle = rng.nextDouble() * math.pi * 2;
       final dist = 30 + rng.nextDouble() * 25;

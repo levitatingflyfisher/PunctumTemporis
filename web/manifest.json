@@ -1,6 +1,6 @@
 {
-    "name": "One Second A Day",
-    "short_name": "1 Sec/Day",
+    "name": "Punctum Temporis",
+    "short_name": "Punctum",
     "start_url": ".",
     "scope": ".",
     "display": "standalone",

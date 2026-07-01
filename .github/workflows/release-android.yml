@@ -28,10 +28,23 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Clone the sibling path-dep packages
+        # PunctumTemporis depends on these by sibling path (../... relative
+        # to this checkout), matching the local monorepo layout. Checked out
+        # one level above $GITHUB_WORKSPACE, which is writable — the runner
+        # owns the whole .../work/<repo>/ tree, not just the checkout dir.
+        # sanctuary_backup_ui itself depends on sanctuary_auth_core by the
+        # same sibling path, so both must land under packages/.
+        run: |
+          git clone --depth 1 https://github.com/levitatingflyfisher/sanctuaryAuthCore ../packages/sanctuary_auth_core
+          git clone --depth 1 https://github.com/levitatingflyfisher/sanctuaryBackupUi ../packages/sanctuary_backup_ui
+          git clone --depth 1 https://github.com/levitatingflyfisher/ohStyle ../ohStyle
+          git clone --depth 1 https://github.com/levitatingflyfisher/ohFleetConformance ../packages/oh_fleet_conformance
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
+          flutter-version: '3.38.7'
           channel: 'stable'
           cache: true
 
@@ -52,7 +65,10 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Generate SHA256 checksums
-        working-directory: ./build/outputs/flutter-apk
+        # Flutter emits Android artifacts under build/app/outputs (the
+        # android/app module), NOT build/outputs — the wrong path made
+        # this step fail on every run.
+        working-directory: ./build/app/outputs/flutter-apk
         run: |
           for f in *.apk; do
             sha256sum "$f" > "${f}.sha256"
@@ -63,17 +79,17 @@ jobs:
         with:
           name: android-release
           path: |
-            build/outputs/flutter-apk/*.apk
-            build/outputs/flutter-apk/*.sha256
-            build/outputs/bundle/release/*.aab
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/flutter-apk/*.sha256
+            build/app/outputs/bundle/release/*.aab
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/outputs/flutter-apk/*.apk
-            build/outputs/flutter-apk/*.sha256
-            build/outputs/bundle/release/*.aab
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/flutter-apk/*.sha256
+            build/app/outputs/bundle/release/*.aab
           generate_release_notes: true
           draft: true  # review before publishing

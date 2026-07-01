@@ -198,7 +198,7 @@ class _RetroDateRangePickerDialogState
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -216,7 +216,7 @@ class _RetroDateRangePickerDialogState
                     onTap: () => Navigator.pop(context),
                     child: Icon(
                       Icons.close,
-                      color: theme.colorScheme.onSurface.withOpacity(0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                       size: 20,
                     ),
                   ),
@@ -281,7 +281,7 @@ class _RetroDateRangePickerDialogState
                           _displayedMonth.year.toString(),
                           style: AppTheme.monoFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -309,7 +309,7 @@ class _RetroDateRangePickerDialogState
                               style: AppTheme.monoFont(
                                 fontSize: 11,
                                 color: theme.colorScheme.onSurface
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                               ),
                             ),
                           ),
@@ -358,7 +358,7 @@ class _RetroDateRangePickerDialogState
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
                   ),
                 ),
               ),
@@ -389,7 +389,7 @@ class _RetroDateRangePickerDialogState
                             style: AppTheme.monoFont(
                               fontSize: 12,
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.5),
+                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ),
@@ -413,7 +413,7 @@ class _RetroDateRangePickerDialogState
                               color: _startDate != null && _endDate != null
                                   ? theme.colorScheme.primary
                                   : theme.colorScheme.onSurface
-                                      .withOpacity(0.2),
+                                      .withValues(alpha: 0.2),
                             ),
                           ),
                           child: Text(
@@ -424,7 +424,7 @@ class _RetroDateRangePickerDialogState
                               color: _startDate != null && _endDate != null
                                   ? theme.colorScheme.primary
                                   : theme.colorScheme.onSurface
-                                      .withOpacity(0.2),
+                                      .withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -449,7 +449,7 @@ class _RetroDateRangePickerDialogState
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           border: Border.all(
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha: 0.5),
           ),
         ),
         child: Text(
@@ -505,7 +505,7 @@ class _RetroDateRangePickerDialogState
                     border: Border.all(
                       color: isCurrentDisplay
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withOpacity(0.2),
+                          : theme.colorScheme.primary.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Center(
@@ -536,7 +536,7 @@ class _RetroDateRangePickerDialogState
           day.toString(),
           style: AppTheme.monoFont(
             fontSize: 11,
-            color: theme.colorScheme.onSurface.withOpacity(0.1),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
       ),
@@ -566,14 +566,14 @@ class _RetroDateRangePickerDialogState
         margin: const EdgeInsets.all(1),
         decoration: BoxDecoration(
           color: inRange
-              ? theme.colorScheme.primary.withOpacity(0.15)
+              ? theme.colorScheme.primary.withValues(alpha: 0.15)
               : Colors.transparent,
           border: Border.all(
             color: isStart || isEnd
                 ? theme.colorScheme.primary
                 : hasClip
                     ? theme.colorScheme.primary
-                    : theme.colorScheme.primary.withOpacity(0.1),
+                    : theme.colorScheme.primary.withValues(alpha: 0.1),
             width: isStart || isEnd
                 ? 2
                 : hasClip
@@ -587,20 +587,20 @@ class _RetroDateRangePickerDialogState
             // Thumbnail background via ThumbnailImage (platform-transparent)
             if (hasThumbnailPath)
               ThumbnailImage(
-                path: clip!.thumbnailPath!,
+                path: clip.thumbnailPath!,
                 fit: BoxFit.cover,
               ),
             // Range tint overlay on top of thumbnail
             if (hasThumbnailPath && inRange)
               Container(
-                color: theme.colorScheme.primary.withOpacity(0.3),
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
               ),
             Center(
               child: hasThumbnailPath
                   ? Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 2, vertical: 1),
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       child: Text(
                         date.day.toString(),
                         style: AppTheme.monoFont(
@@ -617,10 +617,10 @@ class _RetroDateRangePickerDialogState
                       style: AppTheme.monoFont(
                         fontSize: 11,
                         color: isFuture
-                            ? theme.colorScheme.onSurface.withOpacity(0.15)
+                            ? theme.colorScheme.onSurface.withValues(alpha: 0.15)
                             : hasClip
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withOpacity(0.5),
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         fontWeight: isStart || isEnd
                             ? FontWeight.bold
                             : FontWeight.normal,

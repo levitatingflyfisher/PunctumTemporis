@@ -1,10 +1,83 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:one_second_a_day/services/backup_service.dart';
 
 void main() {
+  group('BackupService.sanitizeRestoredMetadata (path-traversal guard)', () {
+    test('rewrites clip filePath/thumbnailPath under the media dirs', () {
+      final data = <String, dynamic>{
+        'clips': {
+          '2026-01-05': [
+            {
+              'id': 'c1',
+              'filePath': '/data/data/app/databases/secret.db',
+              'thumbnailPath': '../../../etc/passwd',
+            }
+          ],
+        },
+      };
+      final out = BackupService.sanitizeRestoredMetadata(
+        data,
+        clipsDir: '/app/clips',
+        thumbnailsDir: '/app/thumbnails',
+        facesDir: '/app/faces',
+        compiledDir: '/app/compiled',
+      );
+      final clip = ((out['clips'] as Map)['2026-01-05'] as List).first as Map;
+      expect(clip['filePath'], '/app/clips/secret.db',
+          reason: 'a foreign clip path must be pinned under clipsDir by basename');
+      expect(clip['thumbnailPath'], '/app/thumbnails/passwd',
+          reason: 'traversal segments must be stripped');
+    });
+
+    test('drops a knownPeople key containing path traversal', () {
+      final data = <String, dynamic>{
+        'knownPeople': {
+          'Alice': {'x': 1},
+          '../../../sdcard/DCIM/evil': {'x': 2},
+        },
+      };
+      final out = BackupService.sanitizeRestoredMetadata(
+        data,
+        clipsDir: '/c',
+        thumbnailsDir: '/t',
+        facesDir: '/f',
+        compiledDir: '/m',
+      );
+      expect((out['knownPeople'] as Map).keys.toList(), ['Alice'],
+          reason: 'a person name is used to build \$facesDir/\$name.jpg — '
+              'reject one that escapes the faces dir');
+    });
+  });
+
+  group('BackupService.checkArchiveLimits (zip-bomb guard)', () {
+    test('rejects an entry whose declared size exceeds the per-entry cap', () {
+      final archive = Archive()
+        ..addFile(ArchiveFile('clips/bomb.mp4', 3 * 1024 * 1024 * 1024, [0]));
+      expect(() => BackupService.checkArchiveLimits(archive),
+          throwsA(isA<BackupTooLargeException>()));
+    });
+
+    test('rejects when the cumulative size exceeds the total cap', () {
+      final archive = Archive();
+      for (var i = 0; i < 10; i++) {
+        archive.addFile(ArchiveFile('clips/c$i.mp4', 1024 * 1024 * 1024, [0]));
+      }
+      expect(() => BackupService.checkArchiveLimits(archive),
+          throwsA(isA<BackupTooLargeException>()));
+    });
+
+    test('accepts a normal-size backup', () {
+      final archive = Archive()
+        ..addFile(ArchiveFile('clips/a.mp4', 5 * 1024 * 1024, [0]))
+        ..addFile(ArchiveFile('metadata.json', 2048, [0]));
+      expect(
+          () => BackupService.checkArchiveLimits(archive), returnsNormally);
+    });
+  });
+
   group('BackupService ZIP structure', () {
     test('creates valid ZIP with expected entries', () {
       // Create a test archive with the expected structure
@@ -44,7 +117,7 @@ void main() {
       // Encode
       final zipData = ZipEncoder().encode(archive);
       expect(zipData, isNotNull);
-      expect(zipData!.length, greaterThan(0));
+      expect(zipData.length, greaterThan(0));
 
       // Decode and validate
       final decoded = ZipDecoder().decodeBytes(zipData);
@@ -160,7 +233,7 @@ void main() {
       final bytes = utf8.encode(metadata);
       archive.addFile(ArchiveFile('metadata.json', bytes.length, bytes));
 
-      final zipData = ZipEncoder().encode(archive)!;
+      final zipData = ZipEncoder().encode(archive);
       final decoded = ZipDecoder().decodeBytes(zipData);
 
       // Validate: read metadata, count clips
@@ -207,7 +280,7 @@ void main() {
       });
       final bytes = utf8.encode(metadata);
       archive.addFile(ArchiveFile('metadata.json', bytes.length, bytes));
-      final zipData = ZipEncoder().encode(archive)!;
+      final zipData = ZipEncoder().encode(archive);
       final zipBytes = Uint8List.fromList(zipData);
 
       // Decode and check compilationCount via metadata parsing

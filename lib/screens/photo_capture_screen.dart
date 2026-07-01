@@ -30,7 +30,6 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
   bool _isInitialized = false;
   bool _hasPhoto = false;
   String? _photoPath;
-  XFile? _photoFile;
   Uint8List? _photoBytes;
   bool _flashOn = false;
   bool _isProcessing = false;
@@ -107,7 +106,6 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
       setState(() {
         _hasPhoto = true;
         _photoPath = file.path;
-        _photoFile = file;
         _photoBytes = bytes;
       });
     } catch (e) {
@@ -224,7 +222,6 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
     setState(() {
       _hasPhoto = false;
       _photoPath = null;
-      _photoFile = null;
       _photoBytes = null;
     });
   }
@@ -302,7 +299,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                       Colors.transparent,
                     ],
                   ),
@@ -350,7 +347,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withValues(alpha: 0.8),
                       Colors.transparent,
                     ],
                   ),
@@ -498,7 +495,7 @@ class _ScanlinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(intensity)
+      ..color = Colors.black.withValues(alpha: intensity)
       ..strokeWidth = 1;
 
     for (var y = 0.0; y < size.height; y += 3) {

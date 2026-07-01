@@ -9,12 +9,15 @@ void main() {
     );
   });
 
-  test('REPLACE ALL second confirmation text is suitably alarming', () {
-    // Verify the constant text that the second confirmation dialog will show.
-    // The message must make it unambiguous that ALL data is deleted.
-    const warning = 'This will permanently delete ALL current clips and replace them '
-        'with the backup. This cannot be undone.';
-    expect(warning, contains('permanently delete'));
-    expect(warning, contains('cannot be undone'));
+  test(
+      'replace-mode second confirmation is honest about the safety net '
+      '(the old "cannot be undone" stopped being true when the mandatory '
+      'pre-restore snapshot landed) — asserted on the REAL const, not a '
+      'copy of it', () {
+    expect(BackupRestoreScreen.replaceAllWarning, contains('roll back'));
+    expect(
+      BackupRestoreScreen.replaceAllWarning.contains('cannot be undone'),
+      isFalse,
+    );
   });
 }

@@ -274,4 +274,60 @@ void main() {
       expect(copy.filePath, '/clips/b2.mp4'); // changed
     });
   });
+
+  group('Montage recipe travels on Compilation', () {
+    test('AudioSegment JSON roundtrip preserves every field', () {
+      final seg = AudioSegment(
+        filePath: '/audio/track.mp3',
+        fileName: 'track.mp3',
+        startTimeInCompilation: 5.0,
+        audioOffset: 10.0,
+        duration: 30.0,
+        volume: 0.8,
+      );
+      final back = AudioSegment.fromJson(seg.toJson());
+      expect(back.filePath, seg.filePath);
+      expect(back.fileName, seg.fileName);
+      expect(back.startTimeInCompilation, 5.0);
+      expect(back.audioOffset, 10.0);
+      expect(back.duration, 30.0);
+      expect(back.volume, 0.8);
+    });
+
+    test('Compilation JSON roundtrip carries originalVolume + audioSegments',
+        () {
+      final comp = Compilation(
+        id: 'comp1',
+        title: 'Jul 2026',
+        filePath: '/compiled/jul.mp4',
+        clipIds: ['a', 'b'],
+        createdAt: DateTime(2026, 7, 1),
+        originalVolume: 0.45,
+        audioSegments: [
+          AudioSegment(filePath: '/music/song.mp3', fileName: 'song.mp3', volume: 0.7),
+        ],
+      );
+      final back = Compilation.fromJson(comp.toJson());
+      expect(back.originalVolume, 0.45,
+          reason: 'the clip-audio level is part of the montage recipe');
+      expect(back.audioSegments, hasLength(1));
+      expect(back.audioSegments!.first.fileName, 'song.mp3');
+      expect(back.audioSegments!.first.volume, 0.7);
+    });
+
+    test('Compilation.fromJson tolerates a legacy row without recipe fields',
+        () {
+      // Every pre-recipe backup produces rows shaped like this — they must
+      // keep restoring forever.
+      final back = Compilation.fromJson({
+        'id': 'old',
+        'title': 'Legacy',
+        'filePath': '/compiled/old.mp4',
+        'clipIds': <String>[],
+        'createdAt': '2026-01-01T00:00:00.000',
+      });
+      expect(back.originalVolume, isNull);
+      expect(back.audioSegments, isNull);
+    });
+  });
 }

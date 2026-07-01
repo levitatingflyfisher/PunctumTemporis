@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:one_second_a_day/theme/app_theme.dart';
 
 /// Builds an isolated location-sheet-like widget to test the CLEAR button.
@@ -50,7 +49,7 @@ Widget _buildTagChip(String tag, {ThemeData? theme}) {
             padding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
               border: Border.all(color: primary),
             ),
             child: Row(
@@ -76,7 +75,6 @@ Widget _buildTagChip(String tag, {ThemeData? theme}) {
 
 void main() {
   setUp(() {
-    GoogleFonts.config.allowRuntimeFetching = false;
     AppTheme.visualStyle = 'retro';
   });
 
