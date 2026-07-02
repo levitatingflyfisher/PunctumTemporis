@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Design tokens for the One Second A Day app
 /// Supports Retro (CRT aesthetic), Modern (Material 3), and Hearth (OpenHearth warm) visual styles
@@ -150,7 +149,8 @@ class AppTheme {
     double? letterSpacing,
   }) {
     if (isHearth) {
-      return GoogleFonts.lora(
+      return TextStyle(
+        fontFamily: 'Lora',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -165,7 +165,8 @@ class AppTheme {
         letterSpacing: letterSpacing ?? 0.5,
       );
     }
-    return GoogleFonts.vt323(
+    return TextStyle(
+      fontFamily: 'VT323',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -180,7 +181,8 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.normal,
   }) {
     if (isHearth) {
-      return GoogleFonts.nunito(
+      return TextStyle(
+        fontFamily: 'Nunito',
         fontSize: fontSize,
         color: color,
         fontWeight: FontWeight.w700,
@@ -188,14 +190,16 @@ class AppTheme {
       );
     }
     if (isModern) {
-      return GoogleFonts.robotoMono(
+      return TextStyle(
+        fontFamily: 'Roboto Mono',
         fontSize: fontSize,
         color: color,
         fontWeight: FontWeight.bold,
         height: 1.3,
       );
     }
-    return GoogleFonts.pressStart2p(
+    return TextStyle(
+      fontFamily: 'Press Start 2P',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -210,13 +214,15 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.normal,
   }) {
     if (isHearth) {
-      return GoogleFonts.nunito(
+      return TextStyle(
+        fontFamily: 'Nunito',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
       );
     }
-    return GoogleFonts.robotoMono(
+    return TextStyle(
+      fontFamily: 'Roboto Mono',
       fontSize: fontSize,
       color: color,
       fontWeight: fontWeight,
@@ -230,7 +236,8 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.w600,
   }) {
     if (isHearth) {
-      return GoogleFonts.lora(
+      return TextStyle(
+        fontFamily: 'Lora',
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,

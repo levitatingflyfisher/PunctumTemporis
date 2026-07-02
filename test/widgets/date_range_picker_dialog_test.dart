@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:one_second_a_day/models/clip.dart';
 import 'package:one_second_a_day/theme/app_theme.dart';
@@ -29,7 +28,6 @@ Widget _dialogFor(StorageService svc, DateTime month) => MaterialApp(
 
 void main() {
   setUp(() {
-    GoogleFonts.config.allowRuntimeFetching = false;
     AppTheme.visualStyle = 'retro';
   });
 

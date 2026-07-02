@@ -44,7 +44,6 @@ dependencies:
   home_widget: ^0.6.0
 
   # UI
-  google_fonts: ^7.0.2
   permission_handler: ^12.0.1
   intl: ^0.20.2
   uuid: ^4.3.3
@@ -63,7 +62,38 @@ flutter:
     - assets/models/
     - assets/data/
     - assets/fonts/
-  
+
+  fonts:
+    - family: Lora
+      fonts:
+        - asset: assets/fonts/Lora-Regular.ttf
+        - asset: assets/fonts/Lora-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Lora-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Lora-Bold.ttf
+          weight: 700
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+    - family: VT323
+      fonts:
+        - asset: assets/fonts/VT323-Regular.ttf
+    - family: Press Start 2P
+      fonts:
+        - asset: assets/fonts/PressStart2P-Regular.ttf
+    - family: Roboto Mono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+        - asset: assets/fonts/RobotoMono-Bold.ttf
+          weight: 700
+
 flutter_launcher_icons:
   android: true
   ios: false

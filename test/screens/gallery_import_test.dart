@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:one_second_a_day/theme/app_theme.dart';
 
 void main() {
   setUp(() {
-    GoogleFonts.config.allowRuntimeFetching = false;
     AppTheme.visualStyle = 'retro';
   });
 

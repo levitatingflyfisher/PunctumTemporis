@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:one_second_a_day/theme/app_theme.dart';
 import 'package:one_second_a_day/services/storage_service.dart';
@@ -17,7 +16,6 @@ void main() {
   late StorageService storageService;
 
   setUp(() async {
-    GoogleFonts.config.allowRuntimeFetching = false;
     AppTheme.visualStyle = 'retro';
     addTearDown(() => AppTheme.visualStyle = 'hearth');
     SharedPreferences.setMockInitialValues(<String, Object>{
