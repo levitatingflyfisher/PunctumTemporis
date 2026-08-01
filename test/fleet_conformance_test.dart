@@ -12,7 +12,13 @@ void main() => runFleetConformance(const FleetAppConfig(
       // Bundles its own type, so nothing falls back to a web font — a
       // character the bundled families cannot draw is a box on a
       // real phone. C7 sweeps lib/ for any.
-      checks: FleetAppConfig.withBundledFonts,
+      // C8: a bare IconButton.filled/.filledTonal would paint its glyph the
+      // color of its own fill under ohStyle's ambient iconTheme. Filled
+      // icon buttons must come from OhIconButton.
+      checks: {
+        ...FleetAppConfig.withBundledFonts,
+        FleetCheck.c8IconButtons,
+      },
       styleTier: StyleTier.tokens,
       androidPermissions: {
         'android.permission.WRITE_EXTERNAL_STORAGE',
