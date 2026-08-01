@@ -1,7 +1,7 @@
 name: one_second_a_day
 description: Capture one second of video every day. Retro aesthetic, local-first.
 publish_to: 'none'
-version: 1.5.0+6
+version: 1.5.0+7
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

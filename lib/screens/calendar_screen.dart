@@ -856,7 +856,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 TextButton(
                   onPressed: _goToToday,
                   child: Text(
-                    '← TODAY',
+                    'BACK TO TODAY',
                     style: AppTheme.monoFont(
                       fontSize: 10,
                       color: theme.colorScheme.primary,

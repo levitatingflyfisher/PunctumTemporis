@@ -489,7 +489,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Text(
-                'IMAGE → 1s VIDEO CLIP',
+                'IMAGE TO 1s VIDEO CLIP',
                 style: AppTheme.monoFont(
                   fontSize: 11,
                   color: theme.colorScheme.primary,

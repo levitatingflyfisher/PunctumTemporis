@@ -1,0 +1,12 @@
+Capture one second of video every day and compile them into montage films — the private, offline, own-your-footage alternative to a subscription cloud video diary.
+
+• A daily clip, and a calm nudge if you miss one
+• On-device face-crop, so people stay centred
+• Montage compilation on your phone, not a server
+• Your videos are included in backups, so a phone change does not cost you the year
+• Retro aesthetic, because a video diary should feel like something
+
+No accounts, no telemetry, no upload. The APK asks for no network permission at all — your footage physically cannot leave this way.
+
+Free and open source, MIT licensed.
+Source: https://github.com/levitatingflyfisher/PunctumTemporis

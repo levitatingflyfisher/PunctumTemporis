@@ -9,6 +9,10 @@ import 'package:oh_fleet_conformance/oh_fleet_conformance.dart';
 
 void main() => runFleetConformance(const FleetAppConfig(
       appId: 'punctumtemporis',
+      // Bundles its own type, so nothing falls back to a web font — a
+      // character the bundled families cannot draw is a box on a
+      // real phone. C7 sweeps lib/ for any.
+      checks: FleetAppConfig.withBundledFonts,
       styleTier: StyleTier.tokens,
       androidPermissions: {
         'android.permission.WRITE_EXTERNAL_STORAGE',

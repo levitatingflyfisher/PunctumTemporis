@@ -569,7 +569,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                       Expanded(
                         child: Text(
                           _startDate != null && _endDate != null
-                              ? '${DateFormat('MMM d, yyyy').format(_startDate!)} → ${DateFormat('MMM d, yyyy').format(_endDate!)}'
+                              ? '${DateFormat('MMM d, yyyy').format(_startDate!)} to ${DateFormat('MMM d, yyyy').format(_endDate!)}'
                               : 'Select date range...',
                           style: AppTheme.displayFont(
                             fontSize: 16,
