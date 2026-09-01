@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show TimeOfDay;
 import 'package:home_widget/home_widget.dart';
 import 'package:media_scanner/media_scanner.dart';
+import 'package:openhearth_design/openhearth_design.dart'
+    show OhThemeModePreference;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/clip.dart';
@@ -229,6 +231,126 @@ class StorageService {
     }
   }
 
+  // ── Soft delete ─────────────────────────────────────────────────────────
+  //
+  // A deliberate delete does not ask; it happens at once and offers an Undo
+  // that never times out (fleet delete ruling). So removing a clip or a
+  // montage takes its row out of metadata but leaves its files, and only an
+  // Undo that lapses (the person dismissed it, deleted something else) calls
+  // purgeRemoved. The files of a removal still pending are listed under
+  // [_pendingRemovalsKey], so a removal that outlives the process (the app
+  // was killed with the Undo on screen) is purged on the next start instead
+  // of orphaning its files forever.
+
+  static const _pendingRemovalsKey = 'pending_removal_files';
+
+  /// Notified whenever clips or montages change underneath a screen that
+  /// did not make the change (an Undo from the app-wide bar, a removal).
+  final ValueNotifier<int> changes = ValueNotifier<int>(0);
+
+  void _changed() => changes.value++;
+
+  List<String> _pendingFiles() =>
+      _prefs.getStringList(_pendingRemovalsKey) ?? const [];
+
+  Future<void> _addPending(Iterable<String> paths) => _prefs.setStringList(
+      _pendingRemovalsKey, {..._pendingFiles(), ...paths}.toList());
+
+  Future<void> _dropPending(Iterable<String> paths) {
+    final drop = paths.toSet();
+    return _prefs.setStringList(_pendingRemovalsKey,
+        _pendingFiles().where((p) => !drop.contains(p)).toList());
+  }
+
+  static List<String> _clipFiles(Clip c) =>
+      [c.filePath, if (c.thumbnailPath != null) c.thumbnailPath!];
+
+  /// Takes the clip off the calendar and keeps its files for an Undo.
+  /// Returns null when no clip has [clipId].
+  Future<ClipRemoval?> removeClip(String clipId) async {
+    for (final date in _clips.keys.toList()) {
+      final list = _clips[date]!;
+      final index = list.indexWhere((c) => c.id == clipId);
+      if (index < 0) continue;
+      final clip = list.removeAt(index);
+      if (list.isEmpty) _clips.remove(date);
+      await _addPending(_clipFiles(clip));
+      await _saveMetadata();
+      _updateWidget();
+      _changed();
+      return ClipRemoval(clip, index);
+    }
+    return null;
+  }
+
+  /// Puts a removed clip back where it was in its day (a day's first clip is
+  /// its thumbnail on the calendar, so the position matters).
+  Future<void> restoreClip(ClipRemoval removal) async {
+    final list = _clips.putIfAbsent(removal.clip.date, () => []);
+    if (list.any((c) => c.id == removal.clip.id)) return;
+    list.insert(removal.index.clamp(0, list.length), removal.clip);
+    await _dropPending(_clipFiles(removal.clip));
+    await _saveMetadata();
+    _updateWidget();
+    _changed();
+  }
+
+  /// Destroys the files of a removal nobody undid.
+  Future<void> purgeRemoved(ClipRemoval removal) async {
+    for (final path in _clipFiles(removal.clip)) {
+      await FileStorage.deleteFile(path);
+    }
+    await _dropPending(_clipFiles(removal.clip));
+  }
+
+  /// Takes a montage off the list and keeps its video file for an Undo.
+  Future<CompilationRemoval?> removeCompilation(String id) async {
+    final index = _compilations.indexWhere((c) => c.id == id);
+    if (index < 0) return null;
+    final compilation = _compilations.removeAt(index);
+    await _addPending([compilation.filePath]);
+    await _saveMetadata();
+    _changed();
+    return CompilationRemoval(compilation, index);
+  }
+
+  Future<void> restoreCompilation(CompilationRemoval removal) async {
+    if (_compilations.any((c) => c.id == removal.compilation.id)) return;
+    _compilations.insert(
+        removal.index.clamp(0, _compilations.length), removal.compilation);
+    await _dropPending([removal.compilation.filePath]);
+    await _saveMetadata();
+    _changed();
+  }
+
+  Future<void> purgeRemovedCompilation(CompilationRemoval removal) async {
+    await FileStorage.deleteFile(removal.compilation.filePath);
+    await _dropPending([removal.compilation.filePath]);
+  }
+
+  /// Destroys the files of removals still pending from an earlier run: that
+  /// Undo is gone with the process. A file a live clip or montage still
+  /// names is never touched.
+  Future<void> purgePendingRemovals() async {
+    final pending = _pendingFiles();
+    if (pending.isEmpty) return;
+    final live = <String>{
+      for (final list in _clips.values)
+        for (final c in list) ..._clipFiles(c),
+      for (final c in _compilations) c.filePath,
+    };
+    for (final path in pending) {
+      if (live.contains(path)) continue;
+      try {
+        await FileStorage.deleteFile(path);
+      } catch (e) {
+        debugPrint('Purging a removed file failed: $e');
+      }
+    }
+    await _prefs.remove(_pendingRemovalsKey);
+  }
+
+  /// Removes a clip and its files at once, with no way back.
   Future<void> deleteClip(String clipId) async {
     for (final date in _clips.keys.toList()) {
       final list = _clips[date]!;
@@ -415,10 +537,42 @@ class StorageService {
     return longest;
   }
 
-  int getThemeMode() => _prefs.getInt(_themeKey) ?? 0;
+  // Theme: light, dark, or follow the phone; default follow the phone (fleet
+  // theme ruling). The stored int keeps its old encoding (0 dark, 1 light,
+  // 2 system) because backups and snapshots carry 'theme_mode' as an int.
+  // Only the unset default moved, from dark to follow phone. A stored 0 is
+  // only ever written from Settings, so it stays the dark its owner sees.
+
+  /// The stored three-way theme mode, in the int encoding above.
+  int getThemeMode() => themeModeToInt(getThemePreference());
   Future<void> setThemeMode(int mode) => _prefs.setInt(_themeKey, mode);
 
-  int getAccentColor() => _prefs.getInt(_accentKey) ?? 0xFF00FF00;
+  OhThemeModePreference getThemePreference() =>
+      themePreferenceFromInt(_prefs.getInt(_themeKey));
+
+  Future<void> setThemePreference(OhThemeModePreference preference) =>
+      _prefs.setInt(_themeKey, themeModeToInt(preference));
+
+  static OhThemeModePreference themePreferenceFromInt(int? mode) =>
+      switch (mode) {
+        0 => OhThemeModePreference.dark,
+        1 => OhThemeModePreference.light,
+        _ => OhThemeModePreference.system,
+      };
+
+  static int themeModeToInt(OhThemeModePreference preference) =>
+      switch (preference) {
+        OhThemeModePreference.dark => 0,
+        OhThemeModePreference.light => 1,
+        OhThemeModePreference.system => 2,
+      };
+
+  /// The stored accent. The old Coral (0xFFFF6B6B) looked like the error
+  /// red in dark themes (C12), so it reads back as the new Coral.
+  int getAccentColor() {
+    final stored = _prefs.getInt(_accentKey) ?? 0xFF00FF00;
+    return stored == 0xFFFF6B6B ? 0xFFFF8C69 : stored;
+  }
   Future<void> setAccentColor(int color) => _prefs.setInt(_accentKey, color);
 
   bool getCrtEffects() => _prefs.getBool(_crtKey) ?? true;
@@ -665,4 +819,20 @@ class StorageService {
   void setClipsForTest(Map<String, List<Clip>> clips) {
     _clips = Map.from(clips);
   }
+}
+
+/// A clip taken off the calendar whose files are kept until the Undo lapses.
+class ClipRemoval {
+  const ClipRemoval(this.clip, this.index);
+  final Clip clip;
+
+  /// Its position in the day's list when it was removed.
+  final int index;
+}
+
+/// A montage taken off the list whose file is kept until the Undo lapses.
+class CompilationRemoval {
+  const CompilationRemoval(this.compilation, this.index);
+  final Compilation compilation;
+  final int index;
 }

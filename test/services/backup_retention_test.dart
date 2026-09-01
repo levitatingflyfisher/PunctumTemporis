@@ -193,7 +193,7 @@ void main() {
       final info = await service().createBackup(out, (_) {});
 
       expect(info.clipCount, 1,
-          reason: '"Backed up and verified — N clips" needs the read-back');
+          reason: '"Backed up and verified: N clips" needs the read-back');
       expect(info.clipFileCount, 0,
           reason: 'REVIEW FIX: the receipt counts the .mp4 files actually '
               'in the archive (none here — the seeded metadata points at '

@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- Deleting a clip or a montage no longer asks: it happens at once and an
+  Undo stays at the bottom of the screen until you act on it (it never
+  times out). Files are removed only when the offer lapses.
+- Theme follows the phone by default (light, dark, or follow the phone, one
+  tap away on the home screen). A theme you already chose is kept.
+- The home screen's actions carry words (Filter, Year, Compile, Settings)
+  and the app's name is never cut short.
+- A streak milestone is a line in the calendar, closed with Close, instead
+  of a modal. Nothing earned is taken back.
+- Back during a montage render asks whether to stop, instead of refusing.
+- Coral accent is a little lighter so it can't be mistaken for an error.
+- Hearth's Lora and Nunito come from the shared OpenHearth design package
+  (about 340 KB smaller); errors use the fleet's one urgency colour.
+- Wide screens centre each page's content instead of boxing the whole app.
+
+### Fixed
+- Errors no longer show raw exception text; each says what didn't happen
+  and what to do.
+- A clip whose file is missing shows what happened and what to do, instead
+  of a spinner forever.
+- Deleting a clip opened from a day with several clips no longer closes the
+  day as well.
+- The capture sheets, the clip's info chips, the month title and the
+  footer no longer clip or overflow at large text.
+- The Backup screen says, before you make one, that the ZIP isn't
+  password-protected and what it holds.
+- The record button says Record or Stop.
+
 ## [1.5.0] - 2026-07-26
 
 ### Added

@@ -51,9 +51,9 @@ dependencies:
   # UI
   intl: ^0.20.2
   uuid: ^4.3.3
-  # Canonical OpenHearth design tokens — PT's Hearth style reads its
-  # palette from here instead of hard-coding the hex values (tier-T:
-  # values are byte-identical, zero visual change).
+  # Canonical OpenHearth design grammar: PT's Hearth palette, the colour
+  # roles every style attaches (one urgency red), Hearth's Lora/Nunito as
+  # package fonts, and the shared error, delete, theme and page widgets.
   openhearth_design:
     path: ../ohStyle/openhearth_design
 
@@ -78,24 +78,6 @@ flutter:
     - assets/fonts/
 
   fonts:
-    - family: Lora
-      fonts:
-        - asset: assets/fonts/Lora-Regular.ttf
-        - asset: assets/fonts/Lora-Italic.ttf
-          style: italic
-        - asset: assets/fonts/Lora-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Lora-Bold.ttf
-          weight: 700
-    - family: Nunito
-      fonts:
-        - asset: assets/fonts/Nunito-Regular.ttf
-        - asset: assets/fonts/Nunito-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Nunito-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Nunito-Bold.ttf
-          weight: 700
     - family: VT323
       fonts:
         - asset: assets/fonts/VT323-Regular.ttf

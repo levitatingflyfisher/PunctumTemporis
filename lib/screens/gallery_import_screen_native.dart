@@ -12,6 +12,8 @@ import 'media_picker_screen.dart';
 import 'clip_preview_screen.dart';
 import '../utils/location_util.dart';
 import '../services/face_service.dart';
+import '../widgets/error_snack_bar.dart';
+import 'package:openhearth_design/openhearth_design.dart' show ohFriendlyErrorMessage;
 
 class GalleryImportScreen extends StatefulWidget {
   final StorageService storageService;
@@ -285,7 +287,8 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
         return;
       }
     } catch (e) {
-      _showError('Import failed: $e');
+      debugPrint('Gallery import failed: $e');
+      _showError("Couldn’t import that file. ${ohFriendlyErrorMessage(e)}");
     }
 
     setState(() => _isProcessing = false);
@@ -293,23 +296,20 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    showErrorSnackBar(context, message);
   }
 
   @override
   Widget build(BuildContext context) {
+    // Back waits while the day's media is written: leaving mid-save would
+    // abandon the clip half-made (a justified block, lens audit finding 12).
     return PopScope(
       canPop: !_isProcessing && _selectedFile == null,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
           if (_isProcessing) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Operation in progress — please wait')),
+              const SnackBar(content: Text('Importing. One moment.')),
             );
           } else {
             // Reset state and reopen media picker instead of exiting screen

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/storage_service.dart';
+import 'package:openhearth_design/openhearth_design.dart' show OhPage;
 
 class OnboardingScreen extends StatefulWidget {
   final StorageService storageService;
@@ -48,7 +49,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      body: SafeArea(
+      body: OhPage(
+        padding: EdgeInsets.zero,
         child: Column(
           children: [
             // Skip button

@@ -5,16 +5,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sanctuary_backup_ui/sanctuary_backup_ui.dart'
-    show
-        BackupVault,
-        FileVaultStore,
-        createPlatformVaultFileApi;
+    show BackupVault, FileVaultStore, createPlatformVaultFileApi;
 import '../platform/file_storage.dart';
 import '../theme/app_theme.dart';
 import '../services/storage_service.dart';
 import '../services/backup_service.dart';
 import '../widgets/crt_effects.dart';
 import '../widgets/metadata_snapshots_section.dart';
+import '../widgets/error_snack_bar.dart';
+import 'package:openhearth_design/openhearth_design.dart'
+    show ohFriendlyErrorMessage, OhPage;
 
 class BackupRestoreScreen extends StatefulWidget {
   final StorageService storageService;
@@ -23,6 +23,17 @@ class BackupRestoreScreen extends StatefulWidget {
     super.key,
     required this.storageService,
   });
+
+  /// One true sentence about the file, shown before the button (lens audit
+  /// writing-is-designing-03). Each claim matches what createBackup packs:
+  /// clips and thumbnails; metadata.json with dates, tags, place names and
+  /// coordinates and the names face recognition wrote; the named face crops;
+  /// montages when included. The ZIP is plain by design (AGENTS).
+  static const zipContentsNotice =
+      'The backup is a ZIP file that isn’t password-protected: anyone who '
+      'has it can watch your clips and see their dates, places, tags, and '
+      'the names and face pictures of people you’ve named. Keep it where '
+      'you’d keep family video.';
 
   static const cancelRestoreWarning =
       'Restore may be partial. Corrupt data is unlikely but possible. Continue?';
@@ -149,7 +160,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           _isRestoring = false;
           _statusMessage = null;
         });
-        _showError("Couldn't save a safety snapshot first, so nothing was "
+        _showError("Couldn’t save a safety snapshot first, so nothing was "
             'changed. Free up some space and try again.');
       }
     } catch (e) {
@@ -158,7 +169,9 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           _isRestoring = false;
           _statusMessage = null;
         });
-        _showError('Snapshot restore failed: $e');
+        debugPrint('Snapshot restore failed: $e');
+        _showError(
+            "The snapshot wasn’t restored. ${ohFriendlyErrorMessage(e)}");
       }
     }
   }
@@ -217,14 +230,14 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         if (kIsWeb) {
           // The count comes from re-reading the encoded bytes — the copy
           // is a verification receipt, not an assumption.
-          _showSuccess('Backed up and verified — ${info.clipFileCount} '
+          _showSuccess('Backed up and verified: ${info.clipFileCount} '
               'clip files downloaded');
         } else {
           final fileName = outputPath.split('/').last;
           await _showBackupOptions(outputPath, fileName);
           if (mounted) {
             _showSuccess(
-                'Backed up and verified — ${info.clipFileCount} clip files');
+                'Backed up and verified: ${info.clipFileCount} clip files');
           }
         }
       }
@@ -234,7 +247,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           _isBackingUp = false;
           _statusMessage = null;
         });
-        _showError('Backup failed: $e');
+        debugPrint('Backup failed: $e');
+        _showError("The backup wasn’t made. ${ohFriendlyErrorMessage(e)}");
       }
     }
   }
@@ -357,8 +371,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
         if (!mounted) return;
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (ctx) => BackupRestoreScreen.buildReplaceConfirmDialog(
-              ctx, archiveHasSettings: info.hasSettings),
+          builder: (ctx) => BackupRestoreScreen.buildReplaceConfirmDialog(ctx,
+              archiveHasSettings: info.hasSettings),
         );
         if (confirmed != true) {
           if (mounted) setState(() => _statusMessage = null);
@@ -407,7 +421,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           _isRestoring = false;
           _statusMessage = null;
         });
-        _showError("Couldn't save a safety snapshot of your current "
+        _showError("Couldn’t save a safety snapshot of your current "
             'journal, so the restore was not started. Free up some space '
             'and try again.');
       }
@@ -417,7 +431,8 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
           _isRestoring = false;
           _statusMessage = null;
         });
-        _showError('Restore failed: $e');
+        debugPrint('Restore failed: $e');
+        _showError("The restore didn’t finish. ${ohFriendlyErrorMessage(e)}");
       }
     }
   }
@@ -484,16 +499,20 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.folder_open, color: theme.colorScheme.primary),
-                title: Text('Save to Device', style: AppTheme.displayFont(fontSize: 15)),
-                subtitle: Text('Choose a folder on your device', style: AppTheme.monoFont(fontSize: 12)),
+                leading:
+                    Icon(Icons.folder_open, color: theme.colorScheme.primary),
+                title: Text('Save to Device',
+                    style: AppTheme.displayFont(fontSize: 15)),
+                subtitle: Text('Choose a folder on your device',
+                    style: AppTheme.monoFont(fontSize: 12)),
                 onTap: () => Navigator.pop(ctx, 'save'),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(Icons.share, color: theme.colorScheme.primary),
                 title: Text('Share', style: AppTheme.displayFont(fontSize: 15)),
-                subtitle: Text('Send via app, cloud, or email', style: AppTheme.monoFont(fontSize: 12)),
+                subtitle: Text('Send via app, cloud, or email',
+                    style: AppTheme.monoFont(fontSize: 12)),
                 onTap: () => Navigator.pop(ctx, 'share'),
               ),
             ],
@@ -546,9 +565,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    showErrorSnackBar(context, message);
   }
 
   void _showSuccess(String message) {
@@ -565,10 +582,16 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
 
     return PopScope(
       canPop: !_isBackingUp && !_isRestoring,
+      // Back during a restore asks through the screen's own CANCEL RESTORE?
+      // dialog. A backup is short and ends in the share step, so back waits
+      // for it, and says what it is waiting for.
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
+        if (didPop) return;
+        if (_isRestoring) {
+          _cancelRestore();
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Operation in progress — please wait')),
+            const SnackBar(content: Text('Finishing the backup. One moment.')),
           );
         }
       },
@@ -579,252 +602,41 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
             style: AppTheme.pixelFont(fontSize: 12),
           ),
         ),
-      body: CrtOverlay(
-        enabled: widget.storageService.getCrtEffects(),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // BACKUP section
-            _buildSectionHeader('BACKUP'),
-
-            RetroCard(
+        body: OhPage(
+          padding: EdgeInsets.zero,
+          safeArea: false,
+          child: CrtOverlay(
+            enabled: widget.storageService.getCrtEffects(),
+            child: ListView(
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+              children: [
+                // BACKUP section
+                _buildSectionHeader('BACKUP'),
+
+                RetroCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.backup, color: theme.colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Create Backup',
-                              style: AppTheme.displayFont(
-                                fontSize: 16,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            Text(
-                              kIsWeb
-                                  ? 'Download ZIP of all clips and metadata'
-                                  : 'Save all clips, thumbnails, and metadata',
-                              style: AppTheme.monoFont(
-                                fontSize: 11,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text(
-                        'Estimated size: ${_estimatedSize != null ? _formatBytes(_estimatedSize!) : "calculating..."}',
-                        style: AppTheme.monoFont(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '${widget.storageService.totalClips} clips',
-                        style: AppTheme.monoFont(
-                          fontSize: 12,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Switch(
-                        value:
-                            widget.storageService.getIncludeMontagesInBackup(),
-                        onChanged: (v) async {
-                          await widget.storageService
-                              .setIncludeMontagesInBackup(v);
-                          if (mounted) setState(() {});
-                          _loadEstimatedSize();
-                        },
-                        activeThumbColor: theme.colorScheme.primary,
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Include montage videos',
-                          style: AppTheme.monoFont(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (_isBackingUp) ...[
-                    RetroProgressBar(value: _progress, height: 16),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_statusMessage ?? ""} ${(_progress * 100).toInt()}%',
-                      style: AppTheme.monoFont(fontSize: 12),
-                    ),
-                  ] else
-                    Center(
-                      child: RetroButton(
-                        onPressed: _createBackup,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.save_alt, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              kIsWeb ? 'DOWNLOAD BACKUP' : 'CREATE BACKUP',
-                              style: AppTheme.monoFont(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // RESTORE section
-            _buildSectionHeader('RESTORE'),
-
-            RetroCard(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.restore, color: theme.colorScheme.primary),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Restore from Backup',
-                              style: AppTheme.displayFont(
-                                fontSize: 16,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            Text(
-                              'Load clips from a backup ZIP',
-                              style: AppTheme.monoFont(
-                                fontSize: 11,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (_isRestoring) ...[
-                    RetroProgressBar(value: _progress, height: 16),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${_statusMessage ?? ""} ${(_progress * 100).toInt()}%',
-                      style: AppTheme.monoFont(fontSize: 12),
-                    ),
-                    const SizedBox(height: 12),
-                    Center(
-                      child: TextButton(
-                        onPressed: _cancelRestore,
-                        child: Text(
-                          'CANCEL',
-                          style: AppTheme.monoFont(
-                            fontSize: 11,
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ] else
-                    Center(
-                      child: RetroButton(
-                        onPressed: _restoreBackup,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.upload_file, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              'SELECT BACKUP FILE',
-                              style: AppTheme.monoFont(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // PREVIOUS SNAPSHOTS — the retention spec's vault, PT-style.
-            _buildSectionHeader('PREVIOUS SNAPSHOTS'),
-            MetadataSnapshotsSection(
-              vault: _backupService.vault,
-              onRestoreSnapshot: _restoreSnapshot,
-            ),
-
-            const SizedBox(height: 24),
-
-            // SHARE / DOWNLOAD section
-            _buildSectionHeader(kIsWeb ? 'DOWNLOAD COMPILATIONS' : 'SHARE COMPILATIONS'),
-
-            if (compilations.isEmpty)
-              Text(
-                'No compilations yet',
-                style: AppTheme.monoFont(
-                  fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              )
-            else
-              ...compilations.reversed.map((c) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: RetroCard(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
+                      Row(
                         children: [
-                          Icon(Icons.movie,
-                              color: theme.colorScheme.primary, size: 20),
+                          Icon(Icons.backup, color: theme.colorScheme.primary),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  c.title,
+                                  'Create Backup',
                                   style: AppTheme.displayFont(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                                 Text(
-                                  '${c.clipIds.length} clips',
+                                  kIsWeb
+                                      ? 'Download ZIP of all clips and metadata'
+                                      : 'Save all clips, thumbnails, and metadata',
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
                                     color: theme.colorScheme.onSurface
@@ -834,22 +646,250 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                               ],
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(
-                              kIsWeb ? Icons.download : Icons.share,
-                              color: theme.colorScheme.primary,
-                              size: 20,
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Text(
+                            'Estimated size: ${_estimatedSize != null ? _formatBytes(_estimatedSize!) : "calculating..."}',
+                            style: AppTheme.monoFont(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.5),
                             ),
-                            onPressed: () => _shareCompilation(c.filePath),
+                          ),
+                          const Spacer(),
+                          Text(
+                            '${widget.storageService.totalClips} clips',
+                            style: AppTheme.monoFont(
+                              fontSize: 12,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
                         ],
                       ),
+                      Row(
+                        children: [
+                          Switch(
+                            value: widget.storageService
+                                .getIncludeMontagesInBackup(),
+                            onChanged: (v) async {
+                              await widget.storageService
+                                  .setIncludeMontagesInBackup(v);
+                              if (mounted) setState(() {});
+                              _loadEstimatedSize();
+                            },
+                            activeThumbColor: theme.colorScheme.primary,
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Include montage videos',
+                              style: AppTheme.monoFont(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        BackupRestoreScreen.zipContentsNotice,
+                        style: AppTheme.monoFont(
+                          fontSize: 12,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      if (_isBackingUp) ...[
+                        RetroProgressBar(value: _progress, height: 16),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${_statusMessage ?? ""} ${(_progress * 100).toInt()}%',
+                          style: AppTheme.monoFont(fontSize: 12),
+                        ),
+                      ] else
+                        Center(
+                          child: RetroButton(
+                            onPressed: _createBackup,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.save_alt, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  kIsWeb ? 'DOWNLOAD BACKUP' : 'CREATE BACKUP',
+                                  style: AppTheme.monoFont(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // RESTORE section
+                _buildSectionHeader('RESTORE'),
+
+                RetroCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.restore, color: theme.colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Restore from Backup',
+                                  style: AppTheme.displayFont(
+                                    fontSize: 16,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                Text(
+                                  'Load clips from a backup ZIP',
+                                  style: AppTheme.monoFont(
+                                    fontSize: 11,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (_isRestoring) ...[
+                        RetroProgressBar(value: _progress, height: 16),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${_statusMessage ?? ""} ${(_progress * 100).toInt()}%',
+                          style: AppTheme.monoFont(fontSize: 12),
+                        ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: TextButton(
+                            onPressed: _cancelRestore,
+                            child: Text(
+                              'CANCEL',
+                              style: AppTheme.monoFont(
+                                fontSize: 11,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.4),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ] else
+                        Center(
+                          child: RetroButton(
+                            onPressed: _restoreBackup,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.upload_file, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'SELECT BACKUP FILE',
+                                  style: AppTheme.monoFont(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // PREVIOUS SNAPSHOTS — the retention spec's vault, PT-style.
+                _buildSectionHeader('PREVIOUS SNAPSHOTS'),
+                MetadataSnapshotsSection(
+                  vault: _backupService.vault,
+                  onRestoreSnapshot: _restoreSnapshot,
+                ),
+
+                const SizedBox(height: 24),
+
+                // SHARE / DOWNLOAD section
+                _buildSectionHeader(
+                    kIsWeb ? 'DOWNLOAD COMPILATIONS' : 'SHARE COMPILATIONS'),
+
+                if (compilations.isEmpty)
+                  Text(
+                    'No compilations yet',
+                    style: AppTheme.monoFont(
+                      fontSize: 12,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
-                  )),
-          ],
+                  )
+                else
+                  ...compilations.reversed.map((c) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: RetroCard(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Icon(Icons.movie,
+                                  color: theme.colorScheme.primary, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      c.title,
+                                      style: AppTheme.displayFont(
+                                        fontSize: 14,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${c.clipIds.length} clips',
+                                      style: AppTheme.monoFont(
+                                        fontSize: 11,
+                                        color: theme.colorScheme.onSurface
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  kIsWeb ? Icons.download : Icons.share,
+                                  color: theme.colorScheme.primary,
+                                  size: 20,
+                                ),
+                                onPressed: () => _shareCompilation(c.filePath),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )),
+              ],
+            ),
+          ),
         ),
       ),
-    ),
     );
   }
 

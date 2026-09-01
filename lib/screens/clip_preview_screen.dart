@@ -9,9 +9,14 @@ import '../models/clip.dart';
 import '../platform/file_storage.dart';
 import '../widgets/crt_effects.dart';
 import '../widgets/thumbnail_image.dart';
+import '../widgets/undo_host.dart';
+import 'gallery_import_screen.dart';
 import '../services/face_service.dart';
 import '../services/ffmpeg_service.dart';
 import 'package:share_plus/share_plus.dart';
+import '../widgets/error_snack_bar.dart';
+import 'package:openhearth_design/openhearth_design.dart'
+    show ohFriendlyErrorMessage;
 
 class ClipPreviewScreen extends StatefulWidget {
   final StorageService storageService;
@@ -19,6 +24,14 @@ class ClipPreviewScreen extends StatefulWidget {
   final VoidCallback? onDelete;
   final bool embedded;
   final bool showImportActions;
+
+  /// Shown where the video would play when the clip's file is not on this
+  /// device (a migrated install, a file removed outside the app). A state,
+  /// not an error: the day is still drawn around it.
+  static const missingClipTitle = 'This clip isn’t on this device';
+  static const missingClipMessage =
+      'Its date, tags and place are still here. A copy may be in your '
+      'gallery: import it for this day, or remove this entry.';
 
   const ClipPreviewScreen({
     super.key,
@@ -37,6 +50,10 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
   VideoPlayerController? _controller;
   String? _blobUrl; // web-only: blob URL for video playback, revoked on dispose
   bool _isInitialized = false;
+
+  /// The clip's file is not on this device: a terminal state, drawn as a
+  /// panel in place of the video, never a spinner (humane-interface-04).
+  bool _isMissing = false;
   late Clip _clip;
   List<FaceDetectionResult> _detectedFaceResults = [];
   List<FaceDetectionResult> _unrecognizedFaces = [];
@@ -61,14 +78,14 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
 
   Future<void> _initializePlayer() async {
     if (!await FileStorage.exists(_clip.filePath)) {
-      _showError('Video file not found');
+      _markMissing();
       return;
     }
 
     if (kIsWeb) {
       final bytes = await FileStorage.readBytes(_clip.filePath);
       if (bytes == null) {
-        _showError('Video file not found');
+        _markMissing();
         return;
       }
       if (_blobUrl != null) FileStorage.revokeObjectUrl(_blobUrl!);
@@ -91,8 +108,25 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
         setState(() => _isInitialized = true);
       }
     } catch (e) {
-      _showError('Failed to play video: $e');
+      debugPrint('Clip playback failed: $e');
+      _showError("This clip couldn’t be played on this device.");
     }
+  }
+
+  void _markMissing() {
+    if (mounted) setState(() => _isMissing = true);
+  }
+
+  Future<void> _importReplacement() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GalleryImportScreen(
+          storageService: widget.storageService,
+          date: _clip.date,
+        ),
+      ),
+    );
   }
 
   void _togglePlayPause() {
@@ -116,47 +150,13 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
     }
   }
 
+  /// A deliberate delete: no question, an Undo that never times out in the
+  /// app-wide bar (fleet delete ruling; see UndoHost).
   Future<void> _deleteClip() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        title: Text(
-          'DELETE CLIP?',
-          style: AppTheme.displayFont(fontSize: 20),
-        ),
-        content: Text(
-          'This will permanently delete the clip for ${_clip.date}.',
-          style: AppTheme.monoFont(fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'CANCEL',
-              style: AppTheme.monoFont(fontSize: 12),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              'DELETE',
-              style: AppTheme.monoFont(
-                fontSize: 12,
-                color: Colors.red,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      await widget.storageService.deleteClip(_clip.id);
-      widget.onDelete?.call();
-      if (mounted && !widget.embedded) {
-        Navigator.pop(context);
-      }
+    await deleteClipWithUndo(context, widget.storageService, _clip);
+    widget.onDelete?.call();
+    if (mounted && !widget.embedded) {
+      Navigator.pop(context);
     }
   }
 
@@ -333,7 +333,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter name...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.3),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -342,8 +343,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                              color:
-                                  theme.colorScheme.primary.withValues(alpha: 0.5)),
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.5)),
                           borderRadius: BorderRadius.zero,
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -396,7 +397,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -505,7 +507,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter location...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.3),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -514,8 +517,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                              color:
-                                  theme.colorScheme.primary.withValues(alpha: 0.5)),
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.5)),
                           borderRadius: BorderRadius.zero,
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -573,7 +576,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.5),
                           ),
                         ),
                         child: Row(
@@ -683,19 +687,15 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
       _isInitialized = false;
       await _initializePlayer();
     } catch (e) {
-      _showError('Trim error: $e');
+      debugPrint('Trim failed: $e');
+      _showError("The trim didn’t finish. ${ohFriendlyErrorMessage(e)}");
       setState(() => _isProcessingTrim = false);
     }
   }
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    showErrorSnackBar(context, message);
   }
 
   @override
@@ -751,6 +751,11 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                   ),
                 ),
               )
+            else if (_isMissing)
+              _MissingClipPanel(
+                onImport: _importReplacement,
+                onRemove: _deleteClip,
+              )
             else
               const Center(child: CircularProgressIndicator()),
 
@@ -797,45 +802,70 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                       ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // A Wrap, not a Row: at large text the actions drop to
+                  // a second line instead of running off the screen.
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            DateFormat('EEEE').format(date).toUpperCase(),
-                            style: AppTheme.pixelFont(
-                              fontSize: 11,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                          Text(
-                            DateFormat('MMM d, yyyy').format(date),
-                            style: AppTheme.monoFont(
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (!kIsWeb)
-                            IconButton(
-                              icon: const Icon(Icons.share, color: Colors.white),
-                              onPressed: () async {
-                                await Share.shareXFiles([XFile(_clip.filePath)]);
-                              },
-                            ),
                           IconButton(
-                            icon: const Icon(Icons.delete_outline,
+                            icon: const Icon(Icons.arrow_back,
                                 color: Colors.white),
-                            onPressed: _deleteClip,
+                            tooltip: 'Back',
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          Flexible(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                DateFormat('EEEE').format(date).toUpperCase(),
+                                style: AppTheme.pixelFont(
+                                  fontSize: 11,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                              Text(
+                                DateFormat('MMM d, yyyy').format(date),
+                                style: AppTheme.monoFont(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )),
+                        ],
+                      ),
+                      // Icon plus word (fleet top-bar ruling); the tooltip
+                      // repeats the full name for screen readers.
+                      Wrap(
+                        children: [
+                          if (!kIsWeb)
+                            Tooltip(
+                              message: 'Share clip',
+                              child: TextButton.icon(
+                                style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white),
+                                icon: const Icon(Icons.share),
+                                label: const Text('Share'),
+                                onPressed: () async {
+                                  await Share.shareXFiles(
+                                      [XFile(_clip.filePath)]);
+                                },
+                              ),
+                            ),
+                          Tooltip(
+                            message: 'Delete clip',
+                            child: TextButton.icon(
+                              style: TextButton.styleFrom(
+                                  foregroundColor: Colors.white),
+                              icon: const Icon(Icons.delete_outline),
+                              label: const Text('Delete'),
+                              onPressed: _deleteClip,
+                            ),
                           ),
                         ],
                       ),
@@ -861,6 +891,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         child: IconButton(
                           icon: const Icon(Icons.share,
                               color: Colors.white, size: 20),
+                          tooltip: 'Share clip',
                           onPressed: () async {
                             await Share.shareXFiles([XFile(_clip.filePath)]);
                           },
@@ -876,6 +907,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                       child: IconButton(
                         icon: const Icon(Icons.delete_outline,
                             color: Colors.white, size: 20),
+                        tooltip: 'Delete clip',
                         onPressed: _deleteClip,
                       ),
                     ),
@@ -927,8 +959,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                   .clamp(0, _videoDuration),
                               onChanged: (v) {
                                 setState(() => _trimStart = v);
-                                _seekTo(Duration(
-                                    milliseconds: (v * 1000).toInt()));
+                                _seekTo(
+                                    Duration(milliseconds: (v * 1000).toInt()));
                               },
                               activeColor: theme.colorScheme.primary,
                             ),
@@ -1266,9 +1298,11 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 5),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withValues(alpha: 0.6),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.6),
                                       border: Border.all(
-                                        color: Colors.amber.withValues(alpha: 0.7),
+                                        color:
+                                            Colors.amber.withValues(alpha: 0.7),
                                       ),
                                     ),
                                     child: Row(
@@ -1345,12 +1379,14 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.3)),
                                 const SizedBox(width: 4),
-                                Text(
-                                  'FACE SCAN UNAVAILABLE',
-                                  style: AppTheme.monoFont(
-                                    fontSize: 11,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.3),
+                                Flexible(
+                                  child: Text(
+                                    'Face scan unavailable',
+                                    style: AppTheme.monoFont(
+                                      fontSize: 11,
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.3),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1358,20 +1394,22 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                           ),
                       ],
                       const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      // Wraps rather than overflows: a real place name
+                      // at 360dp x 1.3 did not fit one line.
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 16,
+                        runSpacing: 8,
                         children: [
                           _InfoChip(
                             icon: _getTypeIcon(_clip.type),
                             label: _getTypeLabel(_clip.type),
                           ),
-                          const SizedBox(width: 16),
                           _InfoChip(
                             icon: Icons.timer,
                             label:
                                 '${_clip.duration?.toStringAsFixed(1) ?? "1.0"}s',
                           ),
-                          const SizedBox(width: 16),
                           GestureDetector(
                             onTap: _showEditLocationSheet,
                             child: _InfoChip(
@@ -1379,7 +1417,6 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               label: _clip.locationLabel ?? 'ADD',
                             ),
                           ),
-                          const SizedBox(width: 16),
                           GestureDetector(
                             onTap: _startTrim,
                             child: const _InfoChip(
@@ -1528,7 +1565,8 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.5)),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.5)),
                       borderRadius: BorderRadius.zero,
                     ),
                     focusedBorder: OutlineInputBorder(
@@ -1734,11 +1772,15 @@ class _InfoChip extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTheme.monoFont(
-              fontSize: 12,
-              color: Colors.white,
+          // Flexible so a long place name at large text wraps inside the
+          // chip instead of running off the screen.
+          Flexible(
+            child: Text(
+              label,
+              style: AppTheme.monoFont(
+                fontSize: 12,
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -1834,5 +1876,67 @@ class _FaceBoundingBoxPainter extends CustomPainter {
   bool shouldRepaint(covariant _FaceBoundingBoxPainter oldDelegate) {
     return oldDelegate.faces != faces ||
         oldDelegate.recognizedNames != recognizedNames;
+  }
+}
+
+/// In place of the video when the clip's file is gone: what happened, and
+/// the two acts that help. The rest of the day stays drawn around it.
+class _MissingClipPanel extends StatelessWidget {
+  const _MissingClipPanel({required this.onImport, required this.onRemove});
+
+  final VoidCallback onImport;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 96, 24, 24),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.videocam_off_outlined,
+                  color: Colors.white70, size: 40),
+              const SizedBox(height: 12),
+              Text(
+                ClipPreviewScreen.missingClipTitle,
+                textAlign: TextAlign.center,
+                style: AppTheme.displayFont(fontSize: 18, color: Colors.white),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                ClipPreviewScreen.missingClipMessage,
+                textAlign: TextAlign.center,
+                style: AppTheme.monoFont(fontSize: 13, color: Colors.white70),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white),
+                    onPressed: onImport,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('Import from gallery'),
+                  ),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                        foregroundColor: Colors.white),
+                    onPressed: onRemove,
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Remove this entry'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

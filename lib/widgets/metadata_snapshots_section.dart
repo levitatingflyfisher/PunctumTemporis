@@ -59,7 +59,7 @@ class _MetadataSnapshotsSectionState extends State<MetadataSnapshotsSection> {
         if (entries == null) return const SizedBox.shrink();
         if (entries.isEmpty) {
           return Text(
-            'No snapshots yet — one is saved automatically before every '
+            'No snapshots yet. One is saved automatically before every '
             'restore.',
             style: AppTheme.monoFont(
               fontSize: 12,

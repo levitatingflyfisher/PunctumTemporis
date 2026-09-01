@@ -52,6 +52,7 @@ montage in 10 minutes" walkthrough. If you write one, put it in `docs/tutorials/
 - **[Architecture overview](architecture/OVERVIEW.md)** — the layers, the platform
   twin, the data flow (with diagrams).
 - **[Architecture Decision Records](adr/)** — why each load-bearing choice was made.
+- **[Personas](explanation/personas.md)**: who agents play when they test the UI, with scenarios.
 - **[Concepts](concepts.md)** — clips, days, compilations, faces-as-people,
   streaks; the domain model in prose.
 - **[Privacy model](privacy-model.md)** — what does (and does not) leave the

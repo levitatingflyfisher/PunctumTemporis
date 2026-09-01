@@ -369,7 +369,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
     final to = DateTime(
         targetDate.year, targetDate.month, targetDate.day + 1 + _dateShift);
     final fmt = DateFormat('MMM d');
-    return '${fmt.format(from).toUpperCase()} — ${fmt.format(to).toUpperCase()}';
+    return '${fmt.format(from).toUpperCase()}–${fmt.format(to).toUpperCase()}';
   }
 
 
@@ -559,7 +559,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                                       const EdgeInsets.symmetric(vertical: 12),
                                   alignment: Alignment.center,
                                   child: Text(
-                                    'NEARBY — ${_nearbyWindowLabel(targetDateTime)}',
+                                    'NEARBY: ${_nearbyWindowLabel(targetDateTime)}',
                                     style: AppTheme.pixelFont(
                                       fontSize: 10,
                                       color: theme.colorScheme.onSurface

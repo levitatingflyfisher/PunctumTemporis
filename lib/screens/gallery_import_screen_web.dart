@@ -9,6 +9,7 @@ import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/crt_effects.dart';
 import '../widgets/thumbnail_image.dart';
+import '../widgets/error_snack_bar.dart';
 
 bool _isVideoExt(String? ext) {
   const videoExts = {'mp4', 'mov', 'avi', 'mkv', 'webm', 'mts', 'm4v', 'ts', 'wmv'};
@@ -274,21 +275,21 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
 
   void _showError(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), backgroundColor: Colors.red),
-    );
+    showErrorSnackBar(context, msg);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Back waits while the day's media is written: leaving mid-save would
+    // abandon the clip half-made (a justified block, lens audit finding 12).
     return PopScope(
       canPop: !_isProcessing,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Operation in progress — please wait')),
+            const SnackBar(content: Text('Importing. One moment.')),
           );
         }
       },

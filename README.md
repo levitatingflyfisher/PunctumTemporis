@@ -50,7 +50,8 @@ The product is Punctum Temporis.)*
 
 ### Stats & engagement
 - Year-in-Review: heatmap, monthly bars, stats grid, top locations/tags/faces
-- Streak tracking and milestone celebrations (7, 30, 50, 100, 200, 365 days)
+- Streak tracking and milestones (7, 30, 50, 100, 200, 365 days), acknowledged in the calendar
+- Deletes with a lasting Undo; light, dark or follow-the-phone theme from the home screen
 - Android home-screen widget (streak + today's status)
 - Daily reminder notifications with a configurable time
 - 3-page onboarding for new users

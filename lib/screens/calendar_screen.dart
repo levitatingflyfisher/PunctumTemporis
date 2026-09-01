@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
@@ -14,8 +13,16 @@ import 'compilation_screen.dart';
 import 'settings_screen.dart';
 import 'year_review_screen.dart';
 import '../widgets/thumbnail_image.dart';
+import '../widgets/capture_option.dart';
+import 'package:openhearth_design/openhearth_design.dart'
+    show OhThemeToggle, OhPage;
 
 class CalendarScreen extends StatefulWidget {
+  /// The name the home screen carries. Which of the app's names belongs here
+  /// is an open decision (lens audit, Contested: the wordmark); what is
+  /// settled is that it is never cut.
+  static const wordmark = 'ONE SECOND';
+
   final StorageService storageService;
   final void Function(int mode, Color accent) onThemeChanged;
   final VoidCallback? onVisualStyleChanged;
@@ -80,6 +87,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void initState() {
     super.initState();
     _currentMonth = DateTime(_today.year, _today.month, 1);
+    widget.storageService.changes.addListener(_onClipsChanged);
+    // A milestone reached some other way (an import, a restore) is
+    // acknowledged the next time the calendar opens.
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _checkStreakCelebration());
+  }
+
+  /// A delete or its Undo landed from the app-wide bar: redraw the month.
+  void _onClipsChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    widget.storageService.changes.removeListener(_onClipsChanged);
+    super.dispose();
   }
 
   void _checkStreakCelebration() {
@@ -95,84 +118,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  /// A milestone just reached, acknowledged in the calendar itself (no
+  /// modal): the line stays until the person closes it or leaves.
+  int? _milestone;
+
   void _showStreakCelebration(int days) {
-    final theme = Theme.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: theme.colorScheme.surface,
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 120,
-                height: 120,
-                child: CustomPaint(
-                  painter:
-                      _CelebrationPainter(color: theme.colorScheme.primary),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                '$days-DAY STREAK!',
-                style: AppTheme.pixelFont(
-                  fontSize: 18,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _getMilestoneMessage(days),
-                style: AppTheme.monoFont(
-                  fontSize: 14,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                  ),
-                  child: Text(
-                    'AWESOME',
-                    style: AppTheme.monoFont(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onPrimary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    if (mounted) setState(() => _milestone = days);
   }
 
   String _getMilestoneMessage(int days) {
     switch (days) {
       case 7:
-        return 'One whole week! Keep going.';
+        return 'One whole week.';
       case 30:
-        return 'A full month of moments captured.';
-      case 50:
-        return 'Fifty days strong!';
-      case 100:
-        return 'Triple digits! Incredible dedication.';
-      case 200:
-        return 'Two hundred days of memories.';
+        return 'A full month of moments.';
       case 365:
-        return 'A FULL YEAR. You are legendary.';
+        return 'A full year of seconds.';
       default:
-        return 'Keep capturing those moments!';
+        return '$days seconds of your life, kept.';
     }
   }
 
@@ -222,7 +185,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${DateFormat('MMM d, yyyy').format(date).toUpperCase()} — ${clips.length} CLIPS',
+              '${DateFormat('MMM d, yyyy').format(date).toUpperCase()}: ${clips.length} CLIPS',
               style: AppTheme.pixelFont(
                 fontSize: 11,
                 color: theme.colorScheme.primary,
@@ -251,7 +214,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -369,84 +333,90 @@ class _CalendarScreenState extends State<CalendarScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'CAPTURE FOR ${DateFormat('MMM d, yyyy').format(date).toUpperCase()}',
-              style: AppTheme.pixelFont(
-                fontSize: 11,
-                color: theme.colorScheme.primary,
+      // Scroll-controlled and scrollable: at large text the three options
+      // are taller than half the screen, and a sheet that cannot grow or
+      // scroll clipped the last of them.
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Capture for ${DateFormat('MMM d, yyyy').format(date)}',
+                style: AppTheme.pixelFont(
+                  fontSize: 11,
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _CaptureOption(
-              icon: Icons.videocam,
-              label: 'Record Video',
-              subtitle: '1 second clip',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => VideoCaptureScreen(
-                      storageService: widget.storageService,
-                      date: dateStr,
+              const SizedBox(height: 24),
+              CaptureOption(
+                icon: Icons.videocam,
+                label: 'Record Video',
+                subtitle: '1 second clip',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => VideoCaptureScreen(
+                        storageService: widget.storageService,
+                        date: dateStr,
+                      ),
                     ),
-                  ),
-                ).then((_) {
-                  setState(() {});
-                  _checkStreakCelebration();
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            _CaptureOption(
-              icon: Icons.camera_alt,
-              label: 'Take Photo',
-              subtitle: 'Convert to 1s video',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PhotoCaptureScreen(
-                      storageService: widget.storageService,
-                      date: dateStr,
+                  ).then((_) {
+                    setState(() {});
+                    _checkStreakCelebration();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              CaptureOption(
+                icon: Icons.camera_alt,
+                label: 'Take Photo',
+                subtitle: 'Convert to 1s video',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PhotoCaptureScreen(
+                        storageService: widget.storageService,
+                        date: dateStr,
+                      ),
                     ),
-                  ),
-                ).then((_) {
-                  setState(() {});
-                  _checkStreakCelebration();
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            _CaptureOption(
-              icon: Icons.photo_library,
-              label: 'Import from Gallery',
-              subtitle: 'Select existing media',
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => GalleryImportScreen(
-                      storageService: widget.storageService,
-                      date: dateStr,
+                  ).then((_) {
+                    setState(() {});
+                    _checkStreakCelebration();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              CaptureOption(
+                icon: Icons.photo_library,
+                label: 'Import from Gallery',
+                subtitle: 'Select existing media',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GalleryImportScreen(
+                        storageService: widget.storageService,
+                        date: dateStr,
+                      ),
                     ),
-                  ),
-                ).then((_) {
-                  setState(() {});
-                  _checkStreakCelebration();
-                });
-              },
-            ),
-            const SizedBox(height: 24),
-          ],
+                  ).then((_) {
+                    setState(() {});
+                    _checkStreakCelebration();
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -465,7 +435,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: ListTile(
           leading: Icon(isPinned ? Icons.push_pin : Icons.push_pin_outlined),
           title: Text(
-            isPinned ? 'Unpin "$label"' : 'Pin "$label" (keep when unused)',
+            isPinned ? 'Unpin “$label”' : 'Pin “$label” (keep when unused)',
             style: AppTheme.monoFont(fontSize: 13),
           ),
           onTap: () async {
@@ -486,8 +456,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget _buildFilterPanel(ThemeData theme) {
     final allTags = widget.storageService.allTagsWithPinned.toList()..sort();
-    final allLocations =
-        widget.storageService.allLocationsWithPinned.toList()..sort();
+    final allLocations = widget.storageService.allLocationsWithPinned.toList()
+      ..sort();
     final allPeople = widget.storageService.knownPeopleNames;
 
     return Padding(
@@ -509,8 +479,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               runSpacing: 6,
               children: allTags.map((tag) {
                 final selected = _filterTags.contains(tag);
-                final pinned =
-                    widget.storageService.pinnedTags.contains(tag);
+                final pinned = widget.storageService.pinnedTags.contains(tag);
                 return GestureDetector(
                   onTap: () {
                     setState(() {
@@ -521,8 +490,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       }
                     });
                   },
-                  onLongPress: () =>
-                      _showPinMenu(context, tag: tag),
+                  onLongPress: () => _showPinMenu(context, tag: tag),
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -575,8 +543,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       }
                     });
                   },
-                  onLongPress: () =>
-                      _showPinMenu(context, location: loc),
+                  onLongPress: () => _showPinMenu(context, location: loc),
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -702,59 +669,89 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return CrtOverlay(
       enabled: widget.storageService.getCrtEffects(),
       child: Scaffold(
-        body: SafeArea(
+        body: OhPage(
+          padding: EdgeInsets.zero,
           child: Column(
             children: [
-              // Header
+              // Header: the product's name, never cut, with the theme one
+              // tap away; below it each section as an icon with its word
+              // (lens audit finding 2; fleet top-bar ruling).
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
                 child: Row(
                   children: [
-                    Flexible(
-                      child: Text(
-                        'ONE SECOND',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTheme.pixelFont(
-                          fontSize: 12,
-                          color: theme.colorScheme.primary,
+                    Expanded(
+                      // A wordmark scales down to fit rather than ellipsize:
+                      // the app must always be able to say its own name.
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          CalendarScreen.wordmark,
+                          maxLines: 1,
+                          style: AppTheme.displayFont(
+                            fontSize: 20,
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
                       ),
                     ),
-                    const Spacer(),
+                    OhThemeToggle(
+                      value: widget.storageService.getThemePreference(),
+                      onChanged: (p) {
+                        widget.onThemeChanged(
+                          StorageService.themeModeToInt(p),
+                          Color(widget.storageService.getAccentColor()),
+                        );
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Wrap(
+                  alignment: WrapAlignment.spaceAround,
+                  runAlignment: WrapAlignment.center,
+                  children: [
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.tune,
-                            color: _isSearchOpen
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                          onPressed: () =>
+                        _HeaderAction(
+                          icon: Icons.tune,
+                          label: 'Filter',
+                          semanticLabel: _isSearchOpen
+                              ? 'Filter clips, open'
+                              : 'Filter clips',
+                          color: _isSearchOpen
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
+                          onTap: () =>
                               setState(() => _isSearchOpen = !_isSearchOpen),
-                          tooltip: 'Filter clips',
                         ),
                         if (_hasActiveFilters)
                           Positioned(
-                            top: 8,
-                            right: 8,
+                            top: 6,
+                            right: 10,
                             child: Container(
                               width: 8,
                               height: 8,
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.error,
+                                color: theme.colorScheme.primary,
                                 shape: BoxShape.circle,
                               ),
                             ),
                           ),
                       ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.bar_chart,
-                          color: theme.colorScheme.primary),
-                      onPressed: () {
+                    _HeaderAction(
+                      icon: Icons.bar_chart,
+                      label: 'Year',
+                      semanticLabel: 'Year in Review',
+                      color: theme.colorScheme.primary,
+                      onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -764,12 +761,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           ),
                         );
                       },
-                      tooltip: 'Year in Review',
                     ),
-                    IconButton(
-                      icon: Icon(Icons.movie_creation_outlined,
-                          color: theme.colorScheme.primary),
-                      onPressed: () {
+                    _HeaderAction(
+                      icon: Icons.movie_creation_outlined,
+                      label: 'Compile',
+                      semanticLabel: 'Compile a montage',
+                      color: theme.colorScheme.primary,
+                      onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -779,12 +777,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           ),
                         );
                       },
-                      tooltip: 'Compile',
                     ),
-                    IconButton(
-                      icon: Icon(Icons.settings_outlined,
-                          color: theme.colorScheme.primary),
-                      onPressed: () {
+                    _HeaderAction(
+                      icon: Icons.settings_outlined,
+                      label: 'Settings',
+                      semanticLabel: 'Settings',
+                      color: theme.colorScheme.primary,
+                      onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -809,6 +808,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.chevron_left),
+                      tooltip: 'Previous month',
                       onPressed: _previousMonth,
                     ),
                     Expanded(
@@ -816,16 +816,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         onTap: _goToToday,
                         child: Column(
                           children: [
-                            Text(
-                              DateFormat('MMMM')
-                                  .format(_currentMonth)
-                                  .toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              textAlign: TextAlign.center,
-                              style: AppTheme.displayFont(
-                                fontSize: 28,
-                                color: theme.colorScheme.onSurface,
+                            // Scaled down to fit, never ellipsized: at
+                            // 320dp x 3.0 the month read "SE...".
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                DateFormat('MMMM')
+                                    .format(_currentMonth)
+                                    .toUpperCase(),
+                                maxLines: 1,
+                                textAlign: TextAlign.center,
+                                style: AppTheme.displayFont(
+                                  fontSize: 28,
+                                  color: theme.colorScheme.onSurface,
+                                ),
                               ),
                             ),
                             Text(
@@ -835,8 +839,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               textAlign: TextAlign.center,
                               style: AppTheme.monoFont(
                                 fontSize: 14,
-                                color:
-                                    theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                color: theme.colorScheme.onSurface
+                                    .withValues(alpha: 0.5),
                               ),
                             ),
                           ],
@@ -845,6 +849,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
+                      tooltip: 'Next month',
                       onPressed: _nextMonth,
                     ),
                   ],
@@ -908,17 +913,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         today: _today,
                         clips: clips,
                         onDayTapped: _onDayTapped,
-                        highlightedDates: _hasActiveFilters ? _filteredDates : null,
+                        highlightedDates:
+                            _hasActiveFilters ? _filteredDates : null,
                         selectedDate: _lastViewedDate,
                       ),
 
+                      if (_milestone != null)
+                        _MilestoneNote(
+                          days: _milestone!,
+                          message: _getMilestoneMessage(_milestone!),
+                          onClose: () => setState(() => _milestone = null),
+                        ),
                       // Stats footer — extra bottom padding to clear the floating CAPTURE button
                       Container(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -1216,26 +1229,32 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Scaled down to fit rather than ellipsized: a count must be read
+    // exactly, and "CAPTU..." at 320dp x 3.0 named nothing.
     return Column(
       children: [
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: AppTheme.displayFont(
-            fontSize: 32,
-            color: theme.colorScheme.primary,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+            style: AppTheme.displayFont(
+              fontSize: 32,
+              color: theme.colorScheme.primary,
+            ),
           ),
         ),
-        Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: AppTheme.monoFont(
-            fontSize: 11,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+            style: AppTheme.monoFont(
+              fontSize: 11,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
           ),
         ),
       ],
@@ -1243,73 +1262,48 @@ class _StatItem extends StatelessWidget {
   }
 }
 
-class _CaptureOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _CaptureOption({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.onTap,
+/// Draws celebratory confetti-style dots and lines
+/// A streak milestone, said where the person is already looking (the
+/// footer's STREAK counter sits just below). Not a modal: nothing waits on
+/// it, and Close is a plain word. The milestone is recorded as earned when
+/// it is reached, whatever happens to this line (fleet ruling: nothing
+/// earned is revoked).
+class _MilestoneNote extends StatelessWidget {
+  const _MilestoneNote({
+    required this.days,
+    required this.message,
+    required this.onClose,
   });
+
+  final int days;
+  final String message;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-          ),
-        ),
+    return Semantics(
+      liveRegion: true,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 4, 0),
         child: Row(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: 2,
+            Icon(Icons.local_fire_department_outlined,
+                color: theme.colorScheme.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '$days days in a row. $message',
+                style: AppTheme.monoFont(
+                  fontSize: 14,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
-              child: Icon(
-                icon,
-                color: theme.colorScheme.primary,
-                size: 24,
-              ),
             ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTheme.displayFont(
-                    fontSize: 18,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: AppTheme.monoFont(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.primary,
+            IconButton(
+              tooltip: 'Close',
+              icon: const Icon(Icons.close),
+              onPressed: onClose,
             ),
           ],
         ),
@@ -1318,58 +1312,56 @@ class _CaptureOption extends StatelessWidget {
   }
 }
 
-/// Draws celebratory confetti-style dots and lines
-class _CelebrationPainter extends CustomPainter {
+/// A header action: its icon with its word under it, one 48dp-plus target.
+/// A tooltip is never a command's only name (fleet top-bar ruling).
+class _HeaderAction extends StatelessWidget {
+  const _HeaderAction({
+    required this.icon,
+    required this.label,
+    required this.semanticLabel,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String semanticLabel;
   final Color color;
-
-  _CelebrationPainter({required this.color});
+  final VoidCallback onTap;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final rng = math.Random(42);
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-
-    // Star burst lines
-    final linePaint = Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    for (var i = 0; i < 12; i++) {
-      final angle = (i / 12) * math.pi * 2;
-      final innerR = 20.0;
-      final outerR = 40.0 + rng.nextDouble() * 15;
-      canvas.drawLine(
-        Offset(cx + math.cos(angle) * innerR, cy + math.sin(angle) * innerR),
-        Offset(cx + math.cos(angle) * outerR, cy + math.sin(angle) * outerR),
-        linePaint,
-      );
-    }
-
-    // Center star
-    final starPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(cx, cy), 12, starPaint);
-
-    // Dots scattered around
-    final dotPaint = Paint()..style = PaintingStyle.fill;
-    final colors = [color, color.withValues(alpha: 0.7), color.withValues(alpha: 0.4)];
-    for (var i = 0; i < 20; i++) {
-      final angle = rng.nextDouble() * math.pi * 2;
-      final dist = 30 + rng.nextDouble() * 25;
-      final r = 2 + rng.nextDouble() * 3;
-      dotPaint.color = colors[rng.nextInt(colors.length)];
-      canvas.drawCircle(
-        Offset(cx + math.cos(angle) * dist, cy + math.sin(angle) * dist),
-        r,
-        dotPaint,
-      );
-    }
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 64, minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: AppTheme.monoFont(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
-
-  @override
-  bool shouldRepaint(covariant _CelebrationPainter oldDelegate) =>
-      oldDelegate.color != color;
 }

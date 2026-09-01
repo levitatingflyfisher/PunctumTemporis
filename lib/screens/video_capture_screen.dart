@@ -8,9 +8,12 @@ import '../services/storage_service.dart';
 import '../services/ffmpeg_service.dart';
 import '../models/clip.dart';
 import '../widgets/crt_effects.dart';
+import '../widgets/record_button.dart';
 import '../utils/location_util.dart';
 import '../services/face_service.dart';
 import '../platform/file_storage.dart';
+import '../widgets/error_snack_bar.dart';
+import 'package:openhearth_design/openhearth_design.dart' show ohFriendlyErrorMessage;
 
 class VideoCaptureScreen extends StatefulWidget {
   final StorageService storageService;
@@ -75,7 +78,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
 
       await _setupCamera(_cameras[_cameraIndex]);
     } catch (e) {
-      _showError('Camera error: $e');
+      debugPrint('availableCameras failed: $e');
+      _showError(cameraUnavailableMessage);
     }
   }
 
@@ -96,7 +100,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
         setState(() => _isInitialized = true);
       }
     } catch (e) {
-      _showError('Failed to initialize camera: $e');
+      debugPrint('Camera initialize failed: $e');
+      _showError(cameraUnavailableMessage);
     }
   }
 
@@ -142,7 +147,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
         }
       });
     } catch (e) {
-      _showError('Recording failed: $e');
+      debugPrint('startVideoRecording failed: $e');
+      _showError("Recording didn’t start. Try again.");
       setState(() => _isRecording = false);
     }
   }
@@ -176,7 +182,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
         _selectedDuration = 1.0;
       });
     } catch (e) {
-      _showError('Stop recording failed: $e');
+      debugPrint('stopVideoRecording failed: $e');
+      _showError("The recording couldn’t be finished. Try again.");
       setState(() => _isRecording = false);
     }
   }
@@ -309,7 +316,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
         Navigator.pop(context);
       }
     } catch (e) {
-      _showError('Save failed: $e');
+      debugPrint('Saving clip failed: $e');
+      _showError("Your clip wasn’t saved. ${ohFriendlyErrorMessage(e)}");
     }
 
     if (mounted) setState(() => _isProcessing = false);
@@ -336,12 +344,7 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    showErrorSnackBar(context, message);
   }
 
   @override
@@ -356,12 +359,14 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Back waits while the day's media is written: leaving mid-save would
+    // abandon the clip half-made (a justified block, lens audit finding 12).
     return PopScope(
       canPop: !_isProcessing,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Operation in progress — please wait')),
+            const SnackBar(content: Text('Saving your clip. One moment.')),
           );
         }
       },
@@ -533,7 +538,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
-              'TAP TO START • TAP AGAIN TO STOP\nMAX ${_maxRecordingDuration.toInt()} SECONDS',
+              'Tap Record to start, and tap again to stop. '
+              'Up to ${_maxRecordingDuration.toInt()} seconds.',
               style: AppTheme.monoFont(
                 fontSize: 11,
                 color: Colors.white70,
@@ -551,44 +557,11 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
               color: _flashOn ? Colors.amber : Colors.white,
             ),
 
-            // Record button
-            GestureDetector(
+            // Record button: tap to start, tap to stop, and it says which.
+            RecordButton(
+              recording: _isRecording,
+              pulse: _pulseController,
               onTap: _isRecording ? _stopRecording : _startRecording,
-              child: AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  final scale =
-                      _isRecording ? 1.0 + _pulseController.value * 0.1 : 1.0;
-                  return Transform.scale(
-                    scale: scale,
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 4,
-                        ),
-                      ),
-                      child: Center(
-                        child: Container(
-                          width: _isRecording ? 30 : 60,
-                          height: _isRecording ? 30 : 60,
-                          decoration: BoxDecoration(
-                            shape: _isRecording
-                                ? BoxShape.rectangle
-                                : BoxShape.circle,
-                            borderRadius:
-                                _isRecording ? BorderRadius.circular(4) : null,
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
             ),
 
             // Camera flip

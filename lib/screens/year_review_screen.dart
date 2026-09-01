@@ -3,6 +3,7 @@ import '../theme/app_theme.dart';
 import '../services/storage_service.dart';
 import '../widgets/crt_effects.dart';
 import '../widgets/thumbnail_image.dart';
+import 'package:openhearth_design/openhearth_design.dart' show OhPage;
 
 class YearReviewScreen extends StatefulWidget {
   final StorageService storageService;
@@ -65,160 +66,171 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
           style: AppTheme.pixelFont(fontSize: 12),
         ),
       ),
-      body: CrtOverlay(
-        enabled: widget.storageService.getCrtEffects(),
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // 1. Year Selector
-            _buildYearSelector(theme),
-            const SizedBox(height: 24),
+      body: OhPage(
+        padding: EdgeInsets.zero,
+        safeArea: false,
+        child: CrtOverlay(
+          enabled: widget.storageService.getCrtEffects(),
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // 1. Year Selector
+              _buildYearSelector(theme),
+              const SizedBox(height: 24),
 
-            // 2. Heatmap
-            _buildSectionHeader('ACTIVITY', theme),
-            const SizedBox(height: 8),
-            _buildHeatmap(theme),
-            const SizedBox(height: 24),
+              // 2. Heatmap
+              _buildSectionHeader('ACTIVITY', theme),
+              const SizedBox(height: 8),
+              _buildHeatmap(theme),
+              const SizedBox(height: 24),
 
-            // Streak summary below heatmap
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                      borderRadius:
-                          AppTheme.isModern ? BorderRadius.circular(2) : null,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text('Less',
-                      style: AppTheme.monoFont(
-                          fontSize: 9,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
-                  const SizedBox(width: 4),
-                  for (final opacity in [0.3, 0.6, 1.0])
-                    Padding(
-                      padding: const EdgeInsets.only(right: 2),
-                      child: Container(
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: opacity),
-                          borderRadius: AppTheme.isModern
-                              ? BorderRadius.circular(2)
-                              : null,
-                        ),
+              // Streak summary below heatmap
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.05),
+                        borderRadius:
+                            AppTheme.isModern ? BorderRadius.circular(2) : null,
                       ),
                     ),
-                  const SizedBox(width: 4),
-                  Text('More',
-                      style: AppTheme.monoFont(
-                          fontSize: 9,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5))),
-                  const Spacer(),
-                  Text(
-                    'STREAK: $longestStreak',
-                    style: AppTheme.monoFont(
-                      fontSize: 10,
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'RATE: ${captureRate.toStringAsFixed(0)}%',
-                    style: AppTheme.monoFont(
-                      fontSize: 10,
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // 3. Monthly Bar Chart
-            _buildSectionHeader('MONTHLY', theme),
-            const SizedBox(height: 8),
-            _buildMonthlyChart(theme),
-            const SizedBox(height: 24),
-
-            // 4. Stats Grid
-            _buildSectionHeader('STATISTICS', theme),
-            const SizedBox(height: 8),
-            _buildStatsGrid(
-              theme,
-              totalClips: totalClips,
-              daysCaptured: daysCaptured,
-              captureRate: captureRate,
-              longestStreak: longestStreak,
-              uniqueLocations: uniqueLocations,
-              uniqueFaces: uniqueFaces,
-            ),
-            const SizedBox(height: 24),
-
-            // 5. Top Locations
-            if (locationCounts.isNotEmpty) ...[
-              _buildSectionHeader('TOP LOCATIONS', theme),
-              const SizedBox(height: 8),
-              _buildRankedList(theme, locationCounts),
-              const SizedBox(height: 24),
-            ],
-
-            // 6. Top Tags
-            if (tagCounts.isNotEmpty) ...[
-              _buildSectionHeader('TOP TAGS', theme),
-              const SizedBox(height: 8),
-              _buildRankedList(theme, tagCounts),
-              const SizedBox(height: 24),
-            ],
-
-            // 7. Monthly Faces
-            if (faceCounts.isNotEmpty) ...[
-              _buildSectionHeader('PEOPLE SPOTTED', theme),
-              const SizedBox(height: 8),
-              _buildFacesGrid(theme, faceCounts),
-              const SizedBox(height: 24),
-            ],
-
-            // Empty state
-            if (totalClips == 0)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    children: [
-                      Icon(Icons.videocam_off,
-                          size: 48,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.3)),
-                      const SizedBox(height: 16),
-                      Text(
-                        'NO CLIPS FOR $_selectedYear',
-                        style: AppTheme.pixelFont(
-                          fontSize: 10,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Start capturing to see your year in review!',
+                    const SizedBox(width: 4),
+                    Text('Less',
                         style: AppTheme.monoFont(
-                          fontSize: 12,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                            fontSize: 9,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.5))),
+                    const SizedBox(width: 4),
+                    for (final opacity in [0.3, 0.6, 1.0])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 2),
+                        child: Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: opacity),
+                            borderRadius: AppTheme.isModern
+                                ? BorderRadius.circular(2)
+                                : null,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    const SizedBox(width: 4),
+                    Text('More',
+                        style: AppTheme.monoFont(
+                            fontSize: 9,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.5))),
+                    const Spacer(),
+                    Text(
+                      'STREAK: $longestStreak',
+                      style: AppTheme.monoFont(
+                        fontSize: 10,
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      'RATE: ${captureRate.toStringAsFixed(0)}%',
+                      style: AppTheme.monoFont(
+                        fontSize: 10,
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 32),
-          ],
+              // 3. Monthly Bar Chart
+              _buildSectionHeader('MONTHLY', theme),
+              const SizedBox(height: 8),
+              _buildMonthlyChart(theme),
+              const SizedBox(height: 24),
+
+              // 4. Stats Grid
+              _buildSectionHeader('STATISTICS', theme),
+              const SizedBox(height: 8),
+              _buildStatsGrid(
+                theme,
+                totalClips: totalClips,
+                daysCaptured: daysCaptured,
+                captureRate: captureRate,
+                longestStreak: longestStreak,
+                uniqueLocations: uniqueLocations,
+                uniqueFaces: uniqueFaces,
+              ),
+              const SizedBox(height: 24),
+
+              // 5. Top Locations
+              if (locationCounts.isNotEmpty) ...[
+                _buildSectionHeader('TOP LOCATIONS', theme),
+                const SizedBox(height: 8),
+                _buildRankedList(theme, locationCounts),
+                const SizedBox(height: 24),
+              ],
+
+              // 6. Top Tags
+              if (tagCounts.isNotEmpty) ...[
+                _buildSectionHeader('TOP TAGS', theme),
+                const SizedBox(height: 8),
+                _buildRankedList(theme, tagCounts),
+                const SizedBox(height: 24),
+              ],
+
+              // 7. Monthly Faces
+              if (faceCounts.isNotEmpty) ...[
+                _buildSectionHeader('PEOPLE SPOTTED', theme),
+                const SizedBox(height: 8),
+                _buildFacesGrid(theme, faceCounts),
+                const SizedBox(height: 24),
+              ],
+
+              // Empty state
+              if (totalClips == 0)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      children: [
+                        Icon(Icons.videocam_off,
+                            size: 48,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.3)),
+                        const SizedBox(height: 16),
+                        Text(
+                          'NO CLIPS FOR $_selectedYear',
+                          style: AppTheme.pixelFont(
+                            fontSize: 10,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.5),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Start capturing to see your year in review!',
+                          style: AppTheme.monoFont(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
@@ -339,8 +351,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                             monthLabels[month],
                             style: AppTheme.monoFont(
                               fontSize: 9,
-                              color:
-                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.5),
                             ),
                           ),
                         );
@@ -368,7 +380,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         weekdayLabels[i],
                         style: AppTheme.monoFont(
                           fontSize: 9,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -388,7 +401,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     cellSize: cellSize,
                     cellGap: cellGap,
                     primaryColor: theme.colorScheme.primary,
-                    emptyColor: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                    emptyColor:
+                        theme.colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
               ),
@@ -540,7 +554,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         height: 16,
                         width: constraints.maxWidth * fraction,
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.7),
                           borderRadius: AppTheme.isModern
                               ? BorderRadius.circular(4)
                               : null,

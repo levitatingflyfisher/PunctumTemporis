@@ -10,6 +10,8 @@ import '../widgets/crt_effects.dart';
 import '../utils/location_util.dart';
 import '../services/face_service.dart';
 import '../platform/file_storage.dart';
+import '../widgets/error_snack_bar.dart';
+import 'package:openhearth_design/openhearth_design.dart' show ohFriendlyErrorMessage;
 
 class PhotoCaptureScreen extends StatefulWidget {
   final StorageService storageService;
@@ -54,7 +56,8 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
 
       await _setupCamera(_cameras[_cameraIndex]);
     } catch (e) {
-      _showError('Camera error: $e');
+      debugPrint('availableCameras failed: $e');
+      _showError(cameraUnavailableMessage);
     }
   }
 
@@ -74,7 +77,8 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
         setState(() => _isInitialized = true);
       }
     } catch (e) {
-      _showError('Failed to initialize camera: $e');
+      debugPrint('Camera initialize failed: $e');
+      _showError(cameraUnavailableMessage);
     }
   }
 
@@ -109,7 +113,8 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
         _photoBytes = bytes;
       });
     } catch (e) {
-      _showError('Failed to take photo: $e');
+      debugPrint('takePicture failed: $e');
+      _showError("The photo wasn’t taken. Try again.");
     }
   }
 
@@ -210,7 +215,8 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
         Navigator.pop(context);
       }
     } catch (e) {
-      _showError('Save failed: $e');
+      debugPrint('Saving photo clip failed: $e');
+      _showError("Your photo wasn’t saved. ${ohFriendlyErrorMessage(e)}");
       if (mounted) setState(() => _isProcessing = false);
     }
   }
@@ -228,12 +234,7 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
 
   void _showError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
+    showErrorSnackBar(context, message);
   }
 
   @override
@@ -246,12 +247,14 @@ class _PhotoCaptureScreenState extends State<PhotoCaptureScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Back waits while the day's media is written: leaving mid-save would
+    // abandon the clip half-made (a justified block, lens audit finding 12).
     return PopScope(
       canPop: !_isProcessing,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Operation in progress — please wait')),
+            const SnackBar(content: Text('Saving your photo. One moment.')),
           );
         }
       },

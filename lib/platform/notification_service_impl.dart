@@ -79,10 +79,10 @@ class NotificationService {
   String _buildNotificationText() {
     final messages = [
       "Capture your one second today!",
-      "Don't forget to freeze a moment today!",
+      "Don’t forget to freeze a moment today!",
       "Your future self will thank you. Record your second!",
       "A second a day keeps the memories in play!",
-      "Time to capture today's moment!",
+      "Time to capture today’s moment!",
     ];
     // Rotate based on day of year for variety
     final dayOfYear =

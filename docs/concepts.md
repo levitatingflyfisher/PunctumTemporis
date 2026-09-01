@@ -52,8 +52,14 @@ are just views over it:
 - **Year-in-Review** — a heatmap of which days you captured, monthly bars, and top
   locations/tags/faces, all aggregated in Dart over the same map.
 - **Streaks & milestones** — a streak is the run of consecutive captured days;
-  crossing 7 / 30 / 50 / 100 / 200 / 365 fires a one-time celebration (tracked so
-  it doesn't re-fire).
+  crossing 7 / 30 / 50 / 100 / 200 / 365 is acknowledged once, as a line in the
+  calendar above the footer (not a modal), and recorded as earned so it doesn't
+  re-fire; nothing earned is ever taken back.
+- **Deleting** — a clip or montage delete does not ask. The row leaves at once
+  and an Undo stays at the bottom of the screen until acted on (it never times
+  out); the files are removed only when that offer lapses, and a delete still
+  pending when the app stops is finished on the next start
+  (`StorageService.removeClip` / `purgePendingRemovals`).
 
 None of these are separate data stores; they are computations. That is why the
 persistence layer can be a single JSON file

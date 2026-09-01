@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:openhearth_design/openhearth_design.dart' show OhUndoController;
 import 'package:sanctuary_backup_ui/sanctuary_backup_ui.dart'
     show BackupVault, FileVaultStore, createPlatformVaultFileApi;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +13,7 @@ import 'services/storage_service.dart';
 import 'services/face_service.dart';
 import 'services/notification_service.dart';
 import 'services/backup_service.dart';
+import 'widgets/undo_host.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +28,9 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final storageService = StorageService(prefs);
   await storageService.initialize();
+  // A delete whose Undo was still on screen when the app last stopped:
+  // that offer is gone, so its files go now instead of lingering forever.
+  await storageService.purgePendingRemovals();
 
   // Initialize face recognition (model may not be present)
   await FaceService.instance.initialize();
@@ -69,6 +74,15 @@ class _OneSecondAppState extends State<OneSecondApp> {
   late Color _accentColor;
   late bool _showOnboarding;
 
+  /// The app-wide Undo offer for deliberate deletes (see UndoHost).
+  final _undo = OhUndoController();
+
+  @override
+  void dispose() {
+    _undo.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -111,22 +125,18 @@ class _OneSecondAppState extends State<OneSecondApp> {
 
   @override
   Widget build(BuildContext context) {
-    final brightness = _themeMode == 0
-        ? Brightness.dark
-        : _themeMode == 1
-            ? Brightness.light
-            : MediaQuery.platformBrightnessOf(context);
-
     return MaterialApp(
       title: 'Punctum Temporis',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.buildTheme(brightness, _accentColor),
+      theme: AppTheme.buildTheme(Brightness.light, _accentColor),
+      darkTheme: AppTheme.buildTheme(Brightness.dark, _accentColor),
+      themeMode: StorageService.themePreferenceFromInt(_themeMode).themeMode,
       builder: (context, child) {
-        final inner = child ?? const SizedBox.shrink();
-        if (MediaQuery.of(context).size.width <= 760) return inner;
-        return ColoredBox(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          child: Center(child: SizedBox(width: 760, child: inner)),
+        // Width is capped per screen (OhPage around each body), so bars and
+        // backgrounds span a tablet or browser window.
+        return UndoHost(
+          controller: _undo,
+          child: child ?? const SizedBox.shrink(),
         );
       },
       home: _showOnboarding

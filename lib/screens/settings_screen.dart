@@ -8,6 +8,8 @@ import '../utils/date_format_util.dart';
 import '../widgets/crt_effects.dart';
 import 'year_review_screen.dart';
 import 'backup_restore_screen.dart';
+import 'package:openhearth_design/openhearth_design.dart'
+    show OhThemeModePreference, OhPage;
 
 class SettingsScreen extends StatefulWidget {
   final StorageService storageService;
@@ -63,453 +65,475 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: AppTheme.pixelFont(fontSize: 12),
         ),
       ),
-      body: CrtOverlay(
-        enabled: _crtEffects,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Appearance section
-            _buildSectionHeader('APPEARANCE'),
+      body: OhPage(
+        padding: EdgeInsets.zero,
+        safeArea: false,
+        child: CrtOverlay(
+          enabled: _crtEffects,
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              // Appearance section
+              _buildSectionHeader('APPEARANCE'),
 
-            // Theme mode
-            _buildSettingTile(
-              label: 'Theme',
-              child: SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 0, label: Text('DARK')),
-                  ButtonSegment(value: 1, label: Text('LIGHT')),
-                  ButtonSegment(value: 2, label: Text('SYSTEM')),
-                ],
-                selected: {_themeMode},
-                onSelectionChanged: (selection) {
-                  setState(() => _themeMode = selection.first);
-                  widget.storageService.setThemeMode(_themeMode);
-                  _updateTheme();
-                },
-                style: ButtonStyle(
-                  textStyle: WidgetStatePropertyAll(
-                    AppTheme.monoFont(fontSize: 10),
+              // Theme mode
+              _buildSettingTile(
+                label: 'Theme',
+                // Follow phone first: it is the default (fleet theme ruling).
+                child: SegmentedButton<int>(
+                  segments: [
+                    for (final p in const [
+                      OhThemeModePreference.system,
+                      OhThemeModePreference.light,
+                      OhThemeModePreference.dark,
+                    ])
+                      ButtonSegment(
+                        value: StorageService.themeModeToInt(p),
+                        label: Text(p.label),
+                      ),
+                  ],
+                  selected: {_themeMode},
+                  onSelectionChanged: (selection) {
+                    setState(() => _themeMode = selection.first);
+                    widget.storageService.setThemeMode(_themeMode);
+                    _updateTheme();
+                  },
+                  style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(
+                      AppTheme.monoFont(fontSize: 10),
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Accent color
-            if (!AppTheme.isHearth)
+              // Accent color
+              if (!AppTheme.isHearth)
+                _buildSettingTile(
+                  label: 'Accent Color',
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: AppTheme.accentPresets.entries.map((entry) {
+                      final isSelected =
+                          _accentColor.toARGB32() == entry.value.toARGB32();
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() => _accentColor = entry.value);
+                          widget.storageService
+                              .setAccentColor(entry.value.toARGB32());
+                          _updateTheme();
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: entry.value,
+                            border: Border.all(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
+                            boxShadow: isSelected
+                                ? [
+                                    BoxShadow(
+                                      color: entry.value.withValues(alpha: 0.5),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                )
+              else
+                _buildSettingTile(
+                  label: 'Accent Color',
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: AppTheme.hearthPrimary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Fixed Hearth terracotta',
+                        style: AppTheme.monoFont(
+                          fontSize: 13,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // Visual style
               _buildSettingTile(
-                label: 'Accent Color',
+                label: 'Visual Style',
+                child: SegmentedButton<String>(
+                  segments: const [
+                    ButtonSegment(value: 'retro', label: Text('RETRO')),
+                    ButtonSegment(value: 'modern', label: Text('MODERN')),
+                    ButtonSegment(value: 'hearth', label: Text('HEARTH')),
+                  ],
+                  selected: {_visualStyle},
+                  onSelectionChanged: (selection) {
+                    setState(() => _visualStyle = selection.first);
+                    widget.storageService.setVisualStyle(_visualStyle);
+                    AppTheme.visualStyle = _visualStyle;
+                    _updateTheme();
+                    widget.onVisualStyleChanged?.call();
+                  },
+                  style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(
+                      AppTheme.monoFont(fontSize: 11),
+                    ),
+                  ),
+                ),
+              ),
+
+              if (AppTheme.isRetro) ...[
+                const SizedBox(height: 16),
+                _buildSettingTile(
+                  label: 'CRT Scanlines',
+                  trailing: Switch(
+                    value: _crtEffects,
+                    onChanged: (value) {
+                      setState(() => _crtEffects = value);
+                      widget.storageService.setCrtEffects(value);
+                    },
+                    activeThumbColor: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Date overlay format
+              _buildSettingTile(
+                label: 'Date Overlay Format',
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: AppTheme.accentPresets.entries.map((entry) {
-                    final isSelected = _accentColor.toARGB32() == entry.value.toARGB32();
+                  children: DateFormatOption.values.map((option) {
+                    final key = DateFormatUtil.toKey(option);
+                    final isSelected = _dateFormat == key;
                     return GestureDetector(
                       onTap: () {
-                        setState(() => _accentColor = entry.value);
-                        widget.storageService.setAccentColor(entry.value.toARGB32());
-                        _updateTheme();
+                        setState(() => _dateFormat = key);
+                        widget.storageService.setDateFormat(key);
                       },
                       child: Container(
-                        width: 40,
-                        height: 40,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: entry.value,
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : Colors.transparent,
                           border: Border.all(
-                            color: isSelected ? Colors.white : Colors.transparent,
-                            width: 3,
+                            color: theme.colorScheme.primary,
+                            width: 1,
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: entry.value.withValues(alpha: 0.5),
-                                    blurRadius: 8,
-                                    spreadRadius: 2,
-                                  ),
-                                ]
-                              : null,
+                        ),
+                        child: Text(
+                          DateFormatUtil.label(option),
+                          style: AppTheme.monoFont(
+                            fontSize: 11,
+                            color: isSelected
+                                ? theme.colorScheme.onPrimary
+                                : theme.colorScheme.primary,
+                          ),
                         ),
                       ),
                     );
                   }).toList(),
                 ),
-              )
-            else
-              _buildSettingTile(
-                label: 'Accent Color',
-                child: Row(
-                  children: [
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.hearthPrimary,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Fixed Hearth terracotta',
-                      style: AppTheme.monoFont(
-                        fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
               ),
 
-            const SizedBox(height: 16),
-
-            // Visual style
-            _buildSettingTile(
-              label: 'Visual Style',
-              child: SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'retro', label: Text('RETRO')),
-                  ButtonSegment(value: 'modern', label: Text('MODERN')),
-                  ButtonSegment(value: 'hearth', label: Text('HEARTH')),
-                ],
-                selected: {_visualStyle},
-                onSelectionChanged: (selection) {
-                  setState(() => _visualStyle = selection.first);
-                  widget.storageService.setVisualStyle(_visualStyle);
-                  AppTheme.visualStyle = _visualStyle;
-                  _updateTheme();
-                  widget.onVisualStyleChanged?.call();
-                },
-                style: ButtonStyle(
-                  textStyle: WidgetStatePropertyAll(
-                    AppTheme.monoFont(fontSize: 11),
-                  ),
-                ),
-              ),
-            ),
-
-            if (AppTheme.isRetro) ...[
               const SizedBox(height: 16),
+
+              // Capture location
               _buildSettingTile(
-                label: 'CRT Scanlines',
+                label: 'Capture Location',
                 trailing: Switch(
-                  value: _crtEffects,
+                  value: _captureLocation,
                   onChanged: (value) {
-                    setState(() => _crtEffects = value);
-                    widget.storageService.setCrtEffects(value);
+                    setState(() => _captureLocation = value);
+                    widget.storageService.setCaptureLocation(value);
                   },
                   activeThumbColor: theme.colorScheme.primary,
                 ),
               ),
-            ],
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 32),
 
-            // Date overlay format
-            _buildSettingTile(
-              label: 'Date Overlay Format',
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: DateFormatOption.values.map((option) {
-                  final key = DateFormatUtil.toKey(option);
-                  final isSelected = _dateFormat == key;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => _dateFormat = key);
-                      widget.storageService.setDateFormat(key);
+              // Reminders section
+              _buildSectionHeader('REMINDERS'),
+
+              _buildSettingTile(
+                label: 'Daily Reminder',
+                trailing: Switch(
+                  value: _reminderEnabled,
+                  onChanged: (value) async {
+                    setState(() => _reminderEnabled = value);
+                    await widget.storageService.setReminderEnabled(value);
+                    if (value) {
+                      await NotificationService.instance
+                          .scheduleDailyReminder(_reminderTime);
+                    } else {
+                      await NotificationService.instance.cancelReminder();
+                    }
+                  },
+                  activeThumbColor: theme.colorScheme.primary,
+                ),
+              ),
+
+              if (_reminderEnabled) ...[
+                const SizedBox(height: 8),
+                _buildSettingTile(
+                  label: 'Reminder Time',
+                  trailing: GestureDetector(
+                    onTap: () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: _reminderTime,
+                      );
+                      if (picked != null) {
+                        setState(() => _reminderTime = picked);
+                        await widget.storageService.setReminderTime(picked);
+                        await NotificationService.instance
+                            .scheduleDailyReminder(picked);
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.colorScheme.primary
-                            : Colors.transparent,
-                        border: Border.all(
-                          color: theme.colorScheme.primary,
-                          width: 1,
-                        ),
+                        border: Border.all(color: theme.colorScheme.primary),
+                        borderRadius:
+                            !AppTheme.isRetro ? BorderRadius.circular(6) : null,
                       ),
                       child: Text(
-                        DateFormatUtil.label(option),
+                        _reminderTime.format(context),
                         style: AppTheme.monoFont(
-                          fontSize: 11,
-                          color: isSelected
-                              ? theme.colorScheme.onPrimary
-                              : theme.colorScheme.primary,
+                          fontSize: 14,
+                          color: theme.colorScheme.primary,
                         ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 32),
+
+              // Data section
+              _buildSectionHeader('DATA'),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BackupRestoreScreen(
+                        storageService: widget.storageService,
                       ),
                     ),
                   );
-                }).toList(),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Capture location
-            _buildSettingTile(
-              label: 'Capture Location',
-              trailing: Switch(
-                value: _captureLocation,
-                onChanged: (value) {
-                  setState(() => _captureLocation = value);
-                  widget.storageService.setCaptureLocation(value);
                 },
-                activeThumbColor: theme.colorScheme.primary,
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Reminders section
-            _buildSectionHeader('REMINDERS'),
-
-            _buildSettingTile(
-              label: 'Daily Reminder',
-              trailing: Switch(
-                value: _reminderEnabled,
-                onChanged: (value) async {
-                  setState(() => _reminderEnabled = value);
-                  await widget.storageService.setReminderEnabled(value);
-                  if (value) {
-                    await NotificationService.instance
-                        .scheduleDailyReminder(_reminderTime);
-                  } else {
-                    await NotificationService.instance.cancelReminder();
-                  }
-                },
-                activeThumbColor: theme.colorScheme.primary,
-              ),
-            ),
-
-            if (_reminderEnabled) ...[
-              const SizedBox(height: 8),
-              _buildSettingTile(
-                label: 'Reminder Time',
-                trailing: GestureDetector(
-                  onTap: () async {
-                    final picked = await showTimePicker(
-                      context: context,
-                      initialTime: _reminderTime,
-                    );
-                    if (picked != null) {
-                      setState(() => _reminderTime = picked);
-                      await widget.storageService.setReminderTime(picked);
-                      await NotificationService.instance
-                          .scheduleDailyReminder(picked);
-                    }
-                  },
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: theme.colorScheme.primary),
-                      borderRadius:
-                          !AppTheme.isRetro ? BorderRadius.circular(6) : null,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
                     ),
-                    child: Text(
-                      _reminderTime.format(context),
-                      style: AppTheme.monoFont(
-                        fontSize: 14,
-                        color: theme.colorScheme.primary,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.backup,
+                              size: 18, color: theme.colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Backup & Restore',
+                            style: AppTheme.monoFont(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(Icons.chevron_right,
+                          color: theme.colorScheme.primary),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Stats section
+              _buildSectionHeader('STATISTICS'),
+
+              _buildStatTile(
+                label: 'Total Clips',
+                value: widget.storageService.totalClips.toString(),
+              ),
+              _buildStatTile(
+                label: 'Current Streak',
+                value: '${widget.storageService.getCurrentStreak()} days',
+              ),
+              _buildStatTile(
+                label: 'Longest Streak',
+                value: '${widget.storageService.getLongestStreak()} days',
+              ),
+              _buildStatTile(
+                label: 'Compilations',
+                value: widget.storageService.compilations.length.toString(),
+              ),
+
+              const SizedBox(height: 16),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => YearReviewScreen(
+                        storageService: widget.storageService,
                       ),
                     ),
+                  );
+                },
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.bar_chart,
+                              size: 18, color: theme.colorScheme.primary),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Year in Review',
+                            style: AppTheme.monoFont(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(Icons.chevron_right,
+                          color: theme.colorScheme.primary),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Storage section
+              _buildSectionHeader('STORAGE'),
+
+              _buildSettingTile(
+                label: 'Clips Location',
+                trailing: Text(
+                  widget.storageService.clipsPath.split('/').last,
+                  style: AppTheme.monoFont(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // About section
+              _buildSectionHeader('ABOUT'),
+
+              _buildSettingTile(
+                label: 'Version',
+                trailing: Text(
+                  '1.3.0',
+                  style: AppTheme.monoFont(fontSize: 14),
+                ),
+              ),
+
+              _buildSettingTile(
+                label: 'License',
+                trailing: Text(
+                  'MIT License',
+                  style: AppTheme.monoFont(fontSize: 14),
+                ),
+              ),
+
+              const SizedBox(height: 32),
+
+              // Footer with logo
+              Center(
+                child: SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: CustomPaint(
+                    painter: _AppLogoPainter(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                      backgroundColor: theme.scaffoldBackgroundColor,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Center(
+                child: Text(
+                  'ONE SECOND A DAY',
+                  style: AppTheme.pixelFont(
+                    fontSize: 11,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Center(
+                child: Text(
+                  'FOSS • LOCAL-FIRST • NO TELEMETRY',
+                  style: AppTheme.monoFont(
+                    fontSize: 11,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
                 ),
               ),
             ],
-
-            const SizedBox(height: 32),
-
-            // Data section
-            _buildSectionHeader('DATA'),
-
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BackupRestoreScreen(
-                      storageService: widget.storageService,
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.backup,
-                            size: 18, color: theme.colorScheme.primary),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Backup & Restore',
-                          style: AppTheme.monoFont(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Icon(Icons.chevron_right, color: theme.colorScheme.primary),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Stats section
-            _buildSectionHeader('STATISTICS'),
-
-            _buildStatTile(
-              label: 'Total Clips',
-              value: widget.storageService.totalClips.toString(),
-            ),
-            _buildStatTile(
-              label: 'Current Streak',
-              value: '${widget.storageService.getCurrentStreak()} days',
-            ),
-            _buildStatTile(
-              label: 'Longest Streak',
-              value: '${widget.storageService.getLongestStreak()} days',
-            ),
-            _buildStatTile(
-              label: 'Compilations',
-              value: widget.storageService.compilations.length.toString(),
-            ),
-
-            const SizedBox(height: 16),
-
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => YearReviewScreen(
-                      storageService: widget.storageService,
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.bar_chart,
-                            size: 18, color: theme.colorScheme.primary),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Year in Review',
-                          style: AppTheme.monoFont(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Icon(Icons.chevron_right, color: theme.colorScheme.primary),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Storage section
-            _buildSectionHeader('STORAGE'),
-
-            _buildSettingTile(
-              label: 'Clips Location',
-              trailing: Text(
-                widget.storageService.clipsPath.split('/').last,
-                style: AppTheme.monoFont(
-                  fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // About section
-            _buildSectionHeader('ABOUT'),
-
-            _buildSettingTile(
-              label: 'Version',
-              trailing: Text(
-                '1.3.0',
-                style: AppTheme.monoFont(fontSize: 14),
-              ),
-            ),
-
-            _buildSettingTile(
-              label: 'License',
-              trailing: Text(
-                'MIT License',
-                style: AppTheme.monoFont(fontSize: 14),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Footer with logo
-            Center(
-              child: SizedBox(
-                width: 64,
-                height: 64,
-                child: CustomPaint(
-                  painter: _AppLogoPainter(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                    backgroundColor: theme.scaffoldBackgroundColor,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 12),
-
-            Center(
-              child: Text(
-                'ONE SECOND A DAY',
-                style: AppTheme.pixelFont(
-                  fontSize: 11,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Center(
-              child: Text(
-                'FOSS • LOCAL-FIRST • NO TELEMETRY',
-                style: AppTheme.monoFont(
-                  fontSize: 11,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -787,5 +811,6 @@ class _AppLogoPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _AppLogoPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.backgroundColor != backgroundColor;
+      oldDelegate.color != color ||
+      oldDelegate.backgroundColor != backgroundColor;
 }

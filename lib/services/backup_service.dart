@@ -65,7 +65,7 @@ class PreRestoreSnapshotException implements Exception {
   @override
   String toString() =>
       'PreRestoreSnapshotException: could not save the safety snapshot '
-      '($cause) — restore refused.';
+      '($cause); restore refused.';
 }
 
 class BackupService {
@@ -647,7 +647,7 @@ class BackupService {
     try {
       SnapshotSerializer.parse(bytes);
     } on Object {
-      throw StateError('Snapshot $id is not readable — nothing was changed.');
+      throw StateError('Snapshot $id is not readable, so nothing was changed.');
     }
     onProgress(0.2);
 

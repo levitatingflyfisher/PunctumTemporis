@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:openhearth_design/openhearth_design.dart' show OhColors;
+import 'package:openhearth_design/openhearth_design.dart'
+    show OhColorRoles, OhColors;
 
 /// Design tokens for the One Second A Day app
 /// Supports Retro (CRT aesthetic), Modern (Material 3), and Hearth (OpenHearth warm) visual styles
 class AppTheme {
+  /// Hearth's Lora and Nunito are openhearth_design's package fonts (0.7.1+);
+  /// the Retro/Modern faces are this app's own assets.
+  static const _ohFonts = 'openhearth_design';
+
   /// Active visual style: 'retro' | 'modern' | 'hearth'
   static String visualStyle = 'hearth';
 
@@ -38,7 +43,9 @@ class AppTheme {
     'Tangerine': Color(0xFFFF6600),
     'Lavender': Color(0xFFB388FF),
     'Mint': Color(0xFF00FFAA),
-    'Coral': Color(0xFFFF6B6B),
+    // Was 0xFFFF6B6B: CIEDE2000 10.2 from the dark urgency red, under C12's
+    // floor of 12. StorageService carries a stored old Coral to this one.
+    'Coral': Color(0xFFFF8C69),
   };
 
   // Dark theme colors (CRT aesthetic)
@@ -55,6 +62,17 @@ class AppTheme {
   static const lightSurface = Color(0xFFFFFFFF);
   static const lightSurfaceVariant = Color(0xFFE8E8E0);
 
+  /// The fleet colour roles for [brightness] (openhearth_design 0.7.0).
+  ///
+  /// Every style attaches them, so the shared widgets (OhErrorState,
+  /// showOhConfirm, OhUndoBar) and PT's own error colour are one red: the
+  /// urgency role, never a warmth or accent colour. Dark styles use the
+  /// hearthDark set, whose urgency is legible on near-black grounds.
+  static OhColorRoles colorRoles(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? OhColorRoles.hearthDark
+          : OhColorRoles.light;
+
   /// Build theme data based on brightness, accent, and visual style.
   /// NOTE: [accent] is ignored in Hearth mode — the palette always uses
   /// [hearthPrimary]. The stored accent value is preserved in prefs so it
@@ -65,6 +83,7 @@ class AppTheme {
     if (isHearth) return _buildHearthTheme(brightness);
 
     final isDark = brightness == Brightness.dark;
+    final roles = colorRoles(brightness);
 
     final surface =
         isDark ? (isModern ? modernDarkSurface : darkSurface) : lightSurface;
@@ -79,14 +98,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      extensions: [roles],
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: accent,
         onPrimary: _contrastColor(accent),
         secondary: accent.withValues(alpha: 0.7),
         onSecondary: _contrastColor(accent),
-        error: const Color(0xFFFF4444),
-        onError: Colors.white,
+        error: roles.urgency,
+        onError: roles.onUrgency,
         surface: surface,
         onSurface: isDark ? Colors.white : Colors.black87,
         surfaceContainerHighest: surfaceVariant,
@@ -158,6 +178,7 @@ class AppTheme {
     if (isHearth) {
       return TextStyle(
         fontFamily: 'Lora',
+        package: _ohFonts,
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -190,6 +211,7 @@ class AppTheme {
     if (isHearth) {
       return TextStyle(
         fontFamily: 'Nunito',
+        package: _ohFonts,
         fontSize: fontSize,
         color: color,
         fontWeight: FontWeight.w700,
@@ -223,6 +245,7 @@ class AppTheme {
     if (isHearth) {
       return TextStyle(
         fontFamily: 'Nunito',
+        package: _ohFonts,
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -245,6 +268,7 @@ class AppTheme {
     if (isHearth) {
       return TextStyle(
         fontFamily: 'Lora',
+        package: _ohFonts,
         fontSize: fontSize,
         color: color,
         fontWeight: fontWeight,
@@ -255,6 +279,7 @@ class AppTheme {
 
   static ThemeData _buildHearthTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
+    final roles = colorRoles(brightness);
 
     final surface    = isDark ? hearthSurfaceDark    : hearthSurfaceLight;
     final surfaceVar = isDark ? hearthSurfaceVarDark  : hearthSurfaceVarLight;
@@ -263,14 +288,15 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      extensions: [roles],
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: hearthPrimary,
         onPrimary: Colors.white,
         secondary: hearthPrimaryHover,
         onSecondary: Colors.white,
-        error: const Color(0xFFFF4444),
-        onError: Colors.white,
+        error: roles.urgency,
+        onError: roles.onUrgency,
         surface: surface,
         onSurface: onSurface,
         surfaceContainerHighest: surfaceVar,

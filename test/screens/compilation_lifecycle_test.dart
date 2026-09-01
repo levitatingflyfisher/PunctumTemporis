@@ -70,7 +70,7 @@ void main() {
       // Verify the expected message string is correct (pinned to prevent typos)
       expect(
         CompilationScreen.backgroundToastMessage,
-        'Compiling — results when you return.',
+        'Compiling. The montage will be here when you return.',
       );
     });
   });

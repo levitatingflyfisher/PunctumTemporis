@@ -10,6 +10,8 @@ import 'clip_preview_screen.dart';
 import 'video_capture_screen.dart';
 import 'photo_capture_screen.dart';
 import 'gallery_import_screen.dart';
+import 'package:openhearth_design/openhearth_design.dart' show OhPage;
+import '../widgets/capture_option.dart';
 
 class DayViewScreen extends StatefulWidget {
   final StorageService storageService;
@@ -42,7 +44,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
   // each get their own stable list after a drag.
   final Map<String, List<clip_model.Clip>> _orderedClips = {};
 
-
   @override
   void initState() {
     super.initState();
@@ -64,10 +65,19 @@ class _DayViewScreenState extends State<DayViewScreen> {
 
     final initialPage = _dateToPage(widget.initialDate);
     _pageController = PageController(initialPage: initialPage);
+    widget.storageService.changes.addListener(_onClipsChanged);
+  }
+
+  /// A delete or its Undo landed from the app-wide bar: drop the cached
+  /// order and redraw the days from storage.
+  void _onClipsChanged() {
+    if (!mounted) return;
+    setState(_orderedClips.clear);
   }
 
   @override
   void dispose() {
+    widget.storageService.changes.removeListener(_onClipsChanged);
     _pageController.dispose();
     super.dispose();
   }
@@ -99,21 +109,25 @@ class _DayViewScreenState extends State<DayViewScreen> {
           top: Radius.circular(AppTheme.isModern ? 16 : 0),
         ),
       ),
-      builder: (context) => Container(
+      // Scroll-controlled and scrollable, like the calendar's sheet: at
+      // large text the options outgrow half the screen.
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+          child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'CAPTURE FOR ${DateFormat('MMM d, yyyy').format(date).toUpperCase()}',
+              'Capture for ${DateFormat('MMM d, yyyy').format(date)}',
               style: AppTheme.pixelFont(
                 fontSize: 11,
                 color: theme.colorScheme.primary,
               ),
             ),
             const SizedBox(height: 24),
-            _CaptureOption(
+            CaptureOption(
               icon: Icons.videocam,
               label: 'Record Video',
               subtitle: 'Tap and hold to record',
@@ -134,7 +148,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
               },
             ),
             const SizedBox(height: 12),
-            _CaptureOption(
+            CaptureOption(
               icon: Icons.camera_alt,
               label: 'Take Photo',
               subtitle: 'Still image as a clip',
@@ -155,7 +169,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
               },
             ),
             const SizedBox(height: 12),
-            _CaptureOption(
+            CaptureOption(
               icon: Icons.photo_library,
               label: 'Import from Gallery',
               subtitle: 'Pick from your photos',
@@ -178,7 +192,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -193,9 +207,9 @@ class _DayViewScreenState extends State<DayViewScreen> {
           style: AppTheme.pixelFont(fontSize: 12),
         ),
         actions: [
-          IconButton(
+          TextButton.icon(
             icon: const Icon(Icons.today),
-            tooltip: 'Go to today',
+            label: const Text('Today'),
             onPressed: () {
               final todayPage = _dateToPage(_today);
               _pageController.animateToPage(
@@ -207,48 +221,53 @@ class _DayViewScreenState extends State<DayViewScreen> {
           ),
         ],
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: _totalPages,
-        onPageChanged: (page) {
-          setState(() {
-            _currentDate = _pageToDate(page);
-          });
-        },
-        itemBuilder: (context, page) {
-          final date = _pageToDate(page);
-          final dateStr = DateFormatUtil.format(date, DateFormatOption.isoDate);
-          final storageClips = widget.storageService.getClipsForDate(dateStr);
+      body: OhPage(
+        padding: EdgeInsets.zero,
+        safeArea: false,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: _totalPages,
+          onPageChanged: (page) {
+            setState(() {
+              _currentDate = _pageToDate(page);
+            });
+          },
+          itemBuilder: (context, page) {
+            final date = _pageToDate(page);
+            final dateStr =
+                DateFormatUtil.format(date, DateFormatOption.isoDate);
+            final storageClips = widget.storageService.getClipsForDate(dateStr);
 
-          // Use the optimistically-reordered list when available, otherwise
-          // seed it from storage so subsequent reorders have a stable base.
-          if (!_orderedClips.containsKey(dateStr)) {
-            _orderedClips[dateStr] = List.from(storageClips);
-          }
-          final clips = _orderedClips[dateStr]!;
+            // Use the optimistically-reordered list when available, otherwise
+            // seed it from storage so subsequent reorders have a stable base.
+            if (!_orderedClips.containsKey(dateStr)) {
+              _orderedClips[dateStr] = List.from(storageClips);
+            }
+            final clips = _orderedClips[dateStr]!;
 
-          if (clips.isEmpty) {
-            return _buildEmptyDay(date, theme);
-          }
+            if (clips.isEmpty) {
+              return _buildEmptyDay(date, theme);
+            }
 
-          // Single clip: full-screen preview (unchanged)
-          if (clips.length == 1) {
-            return ClipPreviewScreen(
-              key: ValueKey(clips.first.id),
-              storageService: widget.storageService,
-              clip: clips.first,
-              onDelete: () {
-                widget.onDelete();
-                _orderedClips.remove(dateStr);
-                setState(() {});
-              },
-              embedded: true,
-            );
-          }
+            // Single clip: full-screen preview (unchanged)
+            if (clips.length == 1) {
+              return ClipPreviewScreen(
+                key: ValueKey(clips.first.id),
+                storageService: widget.storageService,
+                clip: clips.first,
+                onDelete: () {
+                  widget.onDelete();
+                  _orderedClips.remove(dateStr);
+                  setState(() {});
+                },
+                embedded: true,
+              );
+            }
 
-          // Multi-clip: inline reorderable list with sequence badges
-          return _buildMultiClipList(dateStr, clips, theme);
-        },
+            // Multi-clip: inline reorderable list with sequence badges
+            return _buildMultiClipList(dateStr, clips, theme);
+          },
+        ),
       ),
     );
   }
@@ -268,8 +287,8 @@ class _DayViewScreenState extends State<DayViewScreen> {
           final item = _orderedClips[dateStr]!.removeAt(oldIndex);
           _orderedClips[dateStr]!.insert(newIndex, item);
         });
-        widget.storageService
-            .reorderClips(dateStr, _orderedClips[dateStr]!.map((c) => c.id).toList());
+        widget.storageService.reorderClips(
+            dateStr, _orderedClips[dateStr]!.map((c) => c.id).toList());
       },
       itemCount: clips.length,
       itemBuilder: (context, index) {
@@ -283,11 +302,12 @@ class _DayViewScreenState extends State<DayViewScreen> {
                 builder: (_) => ClipPreviewScreen(
                   storageService: widget.storageService,
                   clip: clip,
+                  // The preview pops itself after a delete; popping here
+                  // too closed the day view as well.
                   onDelete: () {
                     widget.onDelete();
                     _orderedClips.remove(dateStr);
                     setState(() {});
-                    Navigator.pop(context);
                   },
                   embedded: false,
                 ),
@@ -338,8 +358,8 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         color: Colors.black.withValues(alpha: 0.7),
                         child: Text(
                           '${index + 1}',
-                          style:
-                              AppTheme.monoFont(fontSize: 9, color: Colors.white),
+                          style: AppTheme.monoFont(
+                              fontSize: 9, color: Colors.white),
                         ),
                       ),
                     ),
@@ -362,7 +382,8 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         '${clip.duration?.toStringAsFixed(1) ?? "1.0"}s',
                         style: AppTheme.monoFont(
                             fontSize: 10,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                            color: theme.colorScheme.onSurface
+                                .withValues(alpha: 0.5)),
                       ),
                     ],
                   ),
@@ -434,84 +455,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _CaptureOption extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _CaptureOption({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-          ),
-          borderRadius: AppTheme.isModern ? BorderRadius.circular(8) : null,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: theme.colorScheme.primary,
-                  width: AppTheme.isModern ? 1 : 2,
-                ),
-                borderRadius:
-                    AppTheme.isModern ? BorderRadius.circular(8) : null,
-              ),
-              child: Icon(
-                icon,
-                color: theme.colorScheme.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTheme.displayFont(
-                    fontSize: 18,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: AppTheme.monoFont(
-                    fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.primary,
-            ),
-          ],
-        ),
       ),
     );
   }

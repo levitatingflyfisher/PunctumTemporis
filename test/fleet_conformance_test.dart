@@ -6,8 +6,9 @@
 //  * analysisOptionsOverrideRecorded — PT's analysis_options adds
 //    avoid_print on top of the stock template (deliberately tighter).
 import 'package:oh_fleet_conformance/oh_fleet_conformance.dart';
+import 'package:one_second_a_day/theme/app_theme.dart';
 
-void main() => runFleetConformance(const FleetAppConfig(
+void main() => runFleetConformance(FleetAppConfig(
       appId: 'punctumtemporis',
       // Bundles its own type, so nothing falls back to a web font — a
       // character the bundled families cannot draw is a box on a
@@ -18,6 +19,41 @@ void main() => runFleetConformance(const FleetAppConfig(
       checks: {
         ...FleetAppConfig.withBundledFonts,
         FleetCheck.c8IconButtons,
+        // C10: no caught exception rendered in a Text/TextSpan/errorText.
+        // PT's screens report through _showError(String) helpers, which C10
+        // cannot see into; test/screens/no_raw_errors_test.dart scans those
+        // calls.
+        FleetCheck.c10RawErrors,
+        // C11: an icon-only AppBar action needs a name. The calendar's
+        // header is not an AppBar (C11 cannot see it);
+        // test/screens/calendar_header_test.dart holds its words.
+        FleetCheck.c11IconLabels,
+        // C12: no accent may look like the urgency red. PT's accent is a
+        // runtime choice C12 cannot read from source, so every value the
+        // app can render is recorded below.
+        FleetCheck.c12AccentVsError,
+        // C5-primaryScreens: the screens whose one job is a button must keep
+        // it reachable at 360dp x 1.3 (test/a11y/primary_action_sweep_test).
+        FleetCheck.c5PrimaryScreens,
+        // C9 (routes) is deliberately off: PT has no GoRoute; every screen
+        // is pushed with Navigator.push from a visible control.
+      },
+      accentColors: [
+        // Hearth (the default style) ignores the stored accent and paints
+        // hearth500 in both brightnesses.
+        FleetAccent.light(AppTheme.hearthPrimary.toARGB32(), label: 'Hearth'),
+        FleetAccent.dark(AppTheme.hearthPrimary.toARGB32(), label: 'Hearth'),
+        // Retro and Modern render the chosen preset as primary, light or
+        // dark (AppTheme.accentPresets).
+        for (final preset in AppTheme.accentPresets.entries) ...[
+          FleetAccent.light(preset.value.toARGB32(), label: preset.key),
+          FleetAccent.dark(preset.value.toARGB32(), label: preset.key),
+        ],
+      ],
+      primaryActionScreens: {
+        'CalendarScreen',
+        'CompilationScreen',
+        'DayViewScreen',
       },
       styleTier: StyleTier.tokens,
       androidPermissions: {

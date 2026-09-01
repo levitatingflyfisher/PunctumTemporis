@@ -41,7 +41,11 @@ the original copy, and COMPILE rebuilds it from the clips.
 
 > **The backup is a plaintext ZIP.** It is unencrypted by design (portable and
 > inspectable). Guard it like the private footage it contains — see
-> [privacy-model.md](../privacy-model.md).
+> [privacy-model.md](../privacy-model.md). The app now says so on the Backup
+> screen, above the button, before the file exists: the ZIP isn't
+> password-protected, and anyone with it can watch the clips and see their
+> dates, places, tags, and the names and face pictures of people you've named
+> (`BackupRestoreScreen.zipContentsNotice`).
 
 ## Validate before restoring
 
