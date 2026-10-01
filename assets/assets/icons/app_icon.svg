@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- White background -->
+  <rect width="1024" height="1024" fill="#FFFFFF"/>
+
+  <g transform="translate(512, 512)">
+
+    <!-- === LAYER 1: Snowflake (behind the hourglass) === -->
+    <!-- Offset to the left so it peeks out from behind -->
+    <g transform="translate(-120, 0)" stroke="#1C1B1F" stroke-width="18" fill="none" stroke-linecap="round">
+      <!-- 6 main arms -->
+      <line x1="0" y1="-140" x2="0" y2="140"/>
+      <line x1="-121.2" y1="-70" x2="121.2" y2="70"/>
+      <line x1="-121.2" y1="70" x2="121.2" y2="-70"/>
+
+      <!-- Branches — top arm -->
+      <line x1="0" y1="-95" x2="32" y2="-63"/>
+      <line x1="0" y1="-95" x2="-32" y2="-63"/>
+
+      <!-- Branches — bottom arm -->
+      <line x1="0" y1="95" x2="32" y2="63"/>
+      <line x1="0" y1="95" x2="-32" y2="63"/>
+
+      <!-- Branches — upper-right arm -->
+      <line x1="84" y1="-48.5" x2="84" y2="-88"/>
+      <line x1="84" y1="-48.5" x2="112" y2="-32"/>
+
+      <!-- Branches — lower-left arm -->
+      <line x1="-84" y1="48.5" x2="-84" y2="88"/>
+      <line x1="-84" y1="48.5" x2="-112" y2="32"/>
+
+      <!-- Branches — upper-left arm -->
+      <line x1="-84" y1="-48.5" x2="-84" y2="-88"/>
+      <line x1="-84" y1="-48.5" x2="-112" y2="-32"/>
+
+      <!-- Branches — lower-right arm -->
+      <line x1="84" y1="48.5" x2="84" y2="88"/>
+      <line x1="84" y1="48.5" x2="112" y2="32"/>
+
+      <!-- Center dot -->
+      <circle cx="0" cy="0" r="14" fill="#1C1B1F" stroke="none"/>
+    </g>
+
+    <!-- === LAYER 2: Hourglass white fill (masks snowflake behind) === -->
+    <!-- Top half filled white -->
+    <path d="M-182,-294 L182,-294 L182,-268
+             C182,-268 162,-100 44,-10
+             L-44,-10
+             C-162,-100 -182,-268 -182,-268 Z"
+          fill="#FFFFFF" stroke="none"/>
+    <!-- Bottom half filled white -->
+    <path d="M-44,10
+             C-162,100 -182,268 -182,268
+             L-182,294 L182,294 L182,268
+             C182,268 162,100 44,10 Z"
+          fill="#FFFFFF" stroke="none"/>
+    <!-- Neck white fill -->
+    <ellipse cx="0" cy="0" rx="46" ry="14" fill="#FFFFFF" stroke="none"/>
+
+    <!-- === LAYER 3: Hourglass stroked outline (on top) === -->
+    <g fill="none" stroke="#1C1B1F" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Top cap -->
+      <line x1="-180" y1="-280" x2="180" y2="-280"/>
+      <!-- Bottom cap -->
+      <line x1="-180" y1="280" x2="180" y2="280"/>
+
+      <!-- Left glass curve -->
+      <path d="M-168,-268 C-168,-268 -160,-100 -42,-10 C-30,0 -30,0 -42,10 C-160,100 -168,268 -168,268"/>
+      <!-- Right glass curve -->
+      <path d="M168,-268 C168,-268 160,-100 42,-10 C30,0 30,0 42,10 C160,100 168,268 168,268"/>
+    </g>
+
+    <!-- === LAYER 4: Sparkle / shine — upper right === -->
+    <!-- 4-point star sparkle with a clear center -->
+    <g stroke="#1C1B1F" stroke-linecap="round" fill="none">
+      <!-- Long vertical-ish ray -->
+      <line x1="270" y1="-310" x2="270" y2="-220" stroke-width="14"/>
+      <!-- Long horizontal-ish ray -->
+      <line x1="225" y1="-265" x2="315" y2="-265" stroke-width="14"/>
+      <!-- Diagonal ray NW-SE -->
+      <line x1="240" y1="-295" x2="300" y2="-235" stroke-width="10"/>
+      <!-- Diagonal ray NE-SW -->
+      <line x1="300" y1="-295" x2="240" y2="-235" stroke-width="10"/>
+    </g>
+    <!-- Sparkle center dot -->
+    <circle cx="270" cy="-265" r="10" fill="#1C1B1F" stroke="none"/>
+
+    <!-- Small secondary sparkle -->
+    <g stroke="#1C1B1F" stroke-linecap="round" fill="none" stroke-width="8">
+      <line x1="340" y1="-195" x2="340" y2="-155"/>
+      <line x1="320" y1="-175" x2="360" y2="-175"/>
+    </g>
+    <circle cx="340" cy="-175" r="5" fill="#1C1B1F" stroke="none"/>
+
+  </g>
+</svg>

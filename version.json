@@ -1,0 +1,8 @@
+{
+  "version": "1.1.0",
+  "versionCode": 2,
+  "releaseDate": "2026-02-26",
+  "apkUrl": "https://[C3_DOMAIN].org/downloads/one-second-a-day-v1.1.0.apk",
+  "changelogUrl": "https://[C3_DOMAIN].org/apps/video-journal#changelog",
+  "minAndroidSdk": 24
+}
