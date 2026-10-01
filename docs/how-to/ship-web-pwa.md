@@ -35,8 +35,19 @@ this is almost always the cause: confirm the service worker registered and the
 page reports `crossOriginIsolated === true`.
 
 The ffmpeg.wasm assets themselves are **bundled** under `web/ffmpeg/`
-(`ffmpeg.js`, `ffmpeg-core.js`, `ffmpeg-core.wasm`) — served locally, not fetched
-from a CDN, consistent with the local-first stance.
+(`ffmpeg.js`, its worker `814.ffmpeg.js`, `ffmpeg-core.js`, `ffmpeg-core.wasm`) —
+served locally, not fetched from a CDN, consistent with the local-first stance.
+Two details keep it that way:
+
+- The runner passes **absolute** core/wasm URLs, resolved against
+  `document.baseURI` (`lib/platform/ffmpeg_web_assets.dart`). The worker resolves a
+  relative URL against its own location, so `ffmpeg/ffmpeg-core.js` used to become
+  `ffmpeg/ffmpeg/ffmpeg-core.js` and 404.
+- Upstream's worker defaults `coreURL` to the unpkg CDN. The vendored copy is
+  patched (see the comment at the top of `814.ffmpeg.js`) to default to the core
+  beside it. If you re-vendor ffmpeg.wasm, re-apply that patch:
+  `test/platform/ffmpeg_self_hosted_test.dart` fails on any third-party URL under
+  `web/` that is not on its never-fetched allowlist.
 
 ## Where data lives on web
 

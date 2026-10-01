@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/clip.dart';
 import 'ffmpeg_args.dart';
+import 'ffmpeg_web_assets.dart';
 import 'file_storage.dart';
 
 // ── JS interop bindings for @ffmpeg/ffmpeg v0.12 UMD (window.FFmpegWASM) ────
@@ -29,6 +30,11 @@ extension type _FFmpegInstance._(JSObject _) implements JSObject {
   external void on(String event, JSFunction handler);
   external void terminate();
 }
+
+/// The page's base URL (the `<base href>`), which ffmpeg asset URLs are
+/// resolved against before the worker sees them.
+@JS('document.baseURI')
+external String get _documentBaseUri;
 
 // ── Singleton state ──────────────────────────────────────────────────────────
 
@@ -56,8 +62,8 @@ class FfmpegRunner {
     _ffmpeg = _FFmpegInstance();
     _ffmpeg!.on('log', _handleLog.toJS);
     await _ffmpeg!.load(_LoadConfig(
-      coreURL: 'ffmpeg/ffmpeg-core.js',
-      wasmURL: 'ffmpeg/ffmpeg-core.wasm',
+      coreURL: ffmpegAssetUrl(_documentBaseUri, ffmpegCoreJs),
+      wasmURL: ffmpegAssetUrl(_documentBaseUri, ffmpegCoreWasm),
     )).toDart;
     _loaded = true;
     await _loadFont();

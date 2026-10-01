@@ -366,9 +366,9 @@ class _RetroDateRangePickerDialogState
                 children: [
                   Text(
                     _startDate != null && _endDate != null
-                        ? '${DateFormat('MMM d').format(_startDate!)} \u2192 ${DateFormat('MMM d, yyyy').format(_endDate!)}'
+                        ? '${DateFormat('MMM d').format(_startDate!)} to ${DateFormat('MMM d, yyyy').format(_endDate!)}'
                         : _startDate != null
-                            ? '${DateFormat('MMM d, yyyy').format(_startDate!)} \u2192 ...'
+                            ? '${DateFormat('MMM d, yyyy').format(_startDate!)} to ...'
                             : 'Tap a day to start',
                     style: AppTheme.displayFont(
                       fontSize: 16,
