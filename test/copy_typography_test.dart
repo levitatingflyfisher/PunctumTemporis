@@ -51,7 +51,8 @@ void main() {
   test('no spaced em dash in on-screen copy', () {
     final hits = [
       for (final (path, line, lit) in literals())
-        if (lit.contains(' — ') || lit.endsWith(" —'") || lit.endsWith(' —"'))
+        // A dash before an escaped newline is still a spaced dash.
+        if (lit.contains(' — ') || RegExp(r' —(\\n)*' "['\"]\$").hasMatch(lit))
           '$path:$line $lit',
     ];
     expect(hits, isEmpty);

@@ -309,14 +309,14 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     info.dateRange!,
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                     ),
                   ),
                 Text(
                   _formatBytes(info.sizeBytes),
                   style: AppTheme.monoFont(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
                 if (info.faceCount > 0)
@@ -324,7 +324,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     '${info.faceCount} face references',
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -493,7 +493,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                 fileName,
                 style: AppTheme.monoFont(
                   fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: AppTheme.dimInk(theme),
                 ),
               ),
               const SizedBox(height: 16),
@@ -639,8 +639,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                                       : 'Save all clips, thumbnails, and metadata',
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.5),
+                                    color: AppTheme.dimInk(theme),
                                   ),
                                 ),
                               ],
@@ -655,8 +654,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                             'Estimated size: ${_estimatedSize != null ? _formatBytes(_estimatedSize!) : "calculating..."}',
                             style: AppTheme.monoFont(
                               fontSize: 12,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.5),
+                              color: AppTheme.dimInk(theme),
                             ),
                           ),
                           const Spacer(),
@@ -760,8 +758,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                                   'Load clips from a backup ZIP',
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.5),
+                                    color: AppTheme.dimInk(theme),
                                   ),
                                 ),
                               ],
@@ -785,10 +782,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                               'CANCEL',
                               style: AppTheme.monoFont(
                                 fontSize: 11,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.4),
+                                color: AppTheme.dimInk(Theme.of(context)),
                               ),
                             ),
                           ),
@@ -838,7 +832,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                     'No compilations yet',
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                     ),
                   )
                 else
@@ -866,8 +860,7 @@ class _BackupRestoreScreenState extends State<BackupRestoreScreen> {
                                       '${c.clipIds.length} clips',
                                       style: AppTheme.monoFont(
                                         fontSize: 11,
-                                        color: theme.colorScheme.onSurface
-                                            .withValues(alpha: 0.5),
+                                        color: AppTheme.dimInk(theme),
                                       ),
                                     ),
                                   ],

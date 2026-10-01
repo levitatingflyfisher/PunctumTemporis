@@ -339,7 +339,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                       'Pick video or image files to import as clips.',
                       style: AppTheme.monoFont(
                         fontSize: 11,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: AppTheme.dimInk(theme),
                       ),
                     ),
                   ],
@@ -421,7 +421,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             'NO FILE SELECTED',
             style: AppTheme.pixelFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              color: AppTheme.dimInk(theme),
             ),
           ),
           const SizedBox(height: 8),
@@ -429,7 +429,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             'VIDEOS + IMAGES SUPPORTED',
             style: AppTheme.monoFont(
               fontSize: 11,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              color: AppTheme.dimInk(theme),
             ),
           ),
         ],
@@ -665,8 +665,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                               '${clip.duration?.toStringAsFixed(1) ?? "1.0"}s',
                               style: AppTheme.monoFont(
                                 fontSize: 11,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.6),
+                                color: AppTheme.dimInk(theme),
                               ),
                             ),
                           ],

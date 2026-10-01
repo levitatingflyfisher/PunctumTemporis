@@ -29,6 +29,9 @@ class ClipPreviewScreen extends StatefulWidget {
   /// device (a migrated install, a file removed outside the app). A state,
   /// not an error: the day is still drawn around it.
   static const missingClipTitle = 'This clip isn’t on this device';
+  static const faceScanPurpose =
+      'Looks for faces on this phone so you can name who is in the clip. '
+      'The app never sends them anywhere.';
   static const missingClipMessage =
       'Its date, tags and place are still here. A copy may be in your '
       'gallery: import it for this day, or remove this entry.';
@@ -333,8 +336,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter name...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.3),
+                          color: AppTheme.dimInk(theme),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -380,7 +382,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                   'KNOWN PEOPLE',
                   style: AppTheme.pixelFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -507,8 +509,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                         hintText: 'Enter location...',
                         hintStyle: AppTheme.monoFont(
                           fontSize: 14,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.3),
+                          color: AppTheme.dimInk(theme),
                         ),
                         border: OutlineInputBorder(
                           borderSide:
@@ -558,7 +559,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                   'PREVIOUS LOCATIONS',
                   style: AppTheme.pixelFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -843,7 +844,8 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                       // repeats the full name for screen readers.
                       Wrap(
                         children: [
-                          if (!kIsWeb)
+                          // Nothing to share when the file is gone.
+                          if (!kIsWeb && !_isMissing)
                             Tooltip(
                               message: 'Share clip',
                               child: TextButton.icon(
@@ -882,7 +884,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!kIsWeb) ...[
+                    if (!kIsWeb && !_isMissing) ...[
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.5),
@@ -1052,6 +1054,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                     horizontal: 20, vertical: 10),
                                 decoration: BoxDecoration(
                                   border: Border.all(
+                                      // contrast-exempt: a border, not text
                                       color: theme.colorScheme.onSurface
                                           .withValues(alpha: 0.3)),
                                 ),
@@ -1367,6 +1370,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             decoration: BoxDecoration(
                               color: Colors.black.withValues(alpha: 0.6),
                               border: Border.all(
+                                // contrast-exempt: a border, not text
                                 color: theme.colorScheme.onSurface
                                     .withValues(alpha: 0.2),
                               ),
@@ -1376,6 +1380,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               children: [
                                 Icon(Icons.face_retouching_natural,
                                     size: 14,
+                                    // contrast-exempt: disabled: face scan unavailable
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.3)),
                                 const SizedBox(width: 4),
@@ -1384,6 +1389,7 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                                     'Face scan unavailable',
                                     style: AppTheme.monoFont(
                                       fontSize: 11,
+                                      // contrast-exempt: disabled: face scan unavailable
                                       color: theme.colorScheme.onSurface
                                           .withValues(alpha: 0.3),
                                     ),
@@ -1392,6 +1398,17 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               ],
                             ),
                           ),
+                        // What the scan does and where it stays, said at
+                        // the button (it writes names onto the clip).
+                        const SizedBox(height: 6),
+                        Text(
+                          ClipPreviewScreen.faceScanPurpose,
+                          textAlign: TextAlign.center,
+                          style: AppTheme.monoFont(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
+                        ),
                       ],
                       const SizedBox(height: 12),
                       // Wraps rather than overflows: a real place name
@@ -1405,6 +1422,14 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                             icon: _getTypeIcon(_clip.type),
                             label: _getTypeLabel(_clip.type),
                           ),
+                          // An import filmed on another day than the one it
+                          // is filed under: the calendar's history glyph,
+                          // explained here in words.
+                          if (_clip.hasDateMismatch)
+                            _InfoChip(
+                              icon: Icons.history,
+                              label: 'FILMED ${_filmedOn(_clip.exifDate!)}',
+                            ),
                           _InfoChip(
                             icon: Icons.timer,
                             label:
@@ -1417,13 +1442,15 @@ class _ClipPreviewScreenState extends State<ClipPreviewScreen> {
                               label: _clip.locationLabel ?? 'ADD',
                             ),
                           ),
-                          GestureDetector(
-                            onTap: _startTrim,
-                            child: const _InfoChip(
-                              icon: Icons.content_cut,
-                              label: 'TRIM',
+                          // Nothing to cut when the file is gone.
+                          if (!_isMissing)
+                            GestureDetector(
+                              onTap: _startTrim,
+                              child: const _InfoChip(
+                                icon: Icons.content_cut,
+                                label: 'TRIM',
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],
@@ -1557,7 +1584,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
                     hintText: 'Enter new tag...',
                     hintStyle: AppTheme.monoFont(
                       fontSize: 14,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                      color: AppTheme.dimInk(theme),
                     ),
                     border: OutlineInputBorder(
                       borderSide: BorderSide(color: theme.colorScheme.primary),
@@ -1600,7 +1627,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
               'NEW TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
             const SizedBox(height: 6),
@@ -1659,7 +1686,7 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
               'EXISTING TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
             const SizedBox(height: 6),
@@ -1743,6 +1770,12 @@ class _MultiTagSheetState extends State<_MultiTagSheet> {
       ),
     );
   }
+}
+
+/// "AUG 30" for a clip's camera date; the raw value if it doesn't parse.
+String _filmedOn(String exifDate) {
+  final d = DateTime.tryParse(exifDate);
+  return d == null ? exifDate : DateFormat('MMM d').format(d).toUpperCase();
 }
 
 class _InfoChip extends StatelessWidget {

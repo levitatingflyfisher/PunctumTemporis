@@ -939,8 +939,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                           'CLEAR ALL FILTERS',
                           style: AppTheme.monoFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: AppTheme.dimInk(theme),
                           ),
                         ),
                       ),
@@ -951,8 +950,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                         'No clips in this range',
                         style: AppTheme.monoFont(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
+                          color: AppTheme.dimInk(theme),
                         ),
                       )
                     else ...[
@@ -1090,8 +1088,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                                       IconButton(
                                         icon: Icon(Icons.close,
                                             size: 18,
-                                            color: theme.colorScheme.onSurface
-                                                .withValues(alpha: 0.5)),
+                                            color: AppTheme.dimInk(theme)),
                                         onPressed: () => _removeAudioSegment(i),
                                         padding: EdgeInsets.zero,
                                         constraints: const BoxConstraints(),
@@ -1201,8 +1198,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                                 'Add music...',
                                 style: AppTheme.monoFont(
                                   fontSize: 12,
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
+                                  color: AppTheme.dimInk(theme),
                                 ),
                               ),
                             ],
@@ -1350,8 +1346,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                             'Saved: ${_compiledPath!.split('/').last}',
                             style: AppTheme.monoFont(
                               fontSize: 12,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.6),
+                              color: AppTheme.dimInk(theme),
                             ),
                           ),
                         ),
@@ -1403,7 +1398,7 @@ class _CompilationScreenState extends State<CompilationScreen>
                       style: AppTheme.monoFont(
                         fontSize: 12,
                         color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            AppTheme.dimInk(theme),
                       ),
                     ),
                 ],
@@ -1646,6 +1641,7 @@ class _CompilationDayCell extends StatelessWidget {
           day.day.toString(),
           style: AppTheme.monoFont(
             fontSize: 12,
+            // contrast-exempt: disabled: a day outside the range
             color: theme.colorScheme.onSurface.withValues(alpha: 0.25),
           ),
         ),
@@ -1698,7 +1694,7 @@ class _CompilationTile extends StatelessWidget {
                       style: AppTheme.monoFont(
                         fontSize: 12,
                         color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            AppTheme.dimInk(theme),
                       ),
                     ),
                   ],
@@ -1707,7 +1703,7 @@ class _CompilationTile extends StatelessWidget {
               IconButton(
                 icon: Icon(
                   Icons.delete_outline,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: AppTheme.dimInk(theme),
                   size: 20,
                 ),
                 tooltip: 'Delete montage',

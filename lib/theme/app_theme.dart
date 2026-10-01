@@ -350,6 +350,14 @@ class AppTheme {
   }
 
   /// Calculate contrast color for text on colored background
+  /// The one quiet-text colour: secondary lines, captions, section labels,
+  /// hints and quiet icons. 4.5:1 or better on surface, container and
+  /// scaffold in every style and brightness (`test/theme/dim_text_test.dart`).
+  /// Faint marks that are disabled or purely decorative stay fainter and say
+  /// so with a `// contrast-exempt:` comment.
+  static Color dimInk(ThemeData theme) =>
+      theme.colorScheme.onSurface.withValues(alpha: 0.72);
+
   static Color _contrastColor(Color color) {
     final luminance = color.computeLuminance();
     return luminance > 0.5 ? Colors.black : Colors.white;

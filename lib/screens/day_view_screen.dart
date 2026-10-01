@@ -325,7 +325,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Icon(
                       Icons.drag_handle,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                       size: 28,
                     ),
                   ),
@@ -382,8 +382,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         '${clip.duration?.toStringAsFixed(1) ?? "1.0"}s',
                         style: AppTheme.monoFont(
                             fontSize: 10,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5)),
+                            color: AppTheme.dimInk(theme)),
                       ),
                     ],
                   ),
@@ -409,6 +408,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
           Icon(
             isFuture ? Icons.schedule : Icons.videocam_off_outlined,
             size: 64,
+            // contrast-exempt: decorative empty-state glyph
             color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
           ),
           const SizedBox(height: 16),
@@ -416,7 +416,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
             isFuture ? 'FUTURE DATE' : 'NO CLIP',
             style: AppTheme.pixelFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              color: AppTheme.dimInk(theme),
             ),
           ),
           const SizedBox(height: 8),
@@ -424,7 +424,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
             DateFormat('EEEE').format(date).toUpperCase(),
             style: AppTheme.monoFont(
               fontSize: 12,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+              color: AppTheme.dimInk(theme),
             ),
           ),
           if (!isFuture) ...[

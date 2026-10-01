@@ -54,7 +54,7 @@ The product is Punctum Temporis.)*
 - Deletes with a lasting Undo; light, dark or follow-the-phone theme from the home screen
 - Android home-screen widget (streak + today's status)
 - Daily reminder notifications with a configurable time
-- 3-page onboarding for new users
+- 3-page onboarding that says where clips live (this phone, nothing uploaded) and offers the daily reminder
 
 ### Visual style
 - Three visual styles — **Retro** (CRT/pixel aesthetic), **Modern** (Material 3),

@@ -62,13 +62,8 @@
     })();
   </script>
 
-  <!--
-    coi-serviceworker: adds COOP/COEP headers via service worker, enabling
-    SharedArrayBuffer on GitHub Pages (required for ffmpeg.wasm multi-threading).
-    Source: https://github.com/gzuidhof/coi-serviceworker (MIT)
-  -->
-  <script src="coi-serviceworker.js"></script>
-  <!-- ffmpeg.wasm v0.12 — bundled for offline use and SharedArrayBuffer support -->
+  <!-- ffmpeg.wasm v0.12, single-threaded core: bundled for offline use; it
+       needs no cross-origin isolation or SharedArrayBuffer. -->
   <script src="ffmpeg/ffmpeg.js"></script>
 <style>
 #oh-boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#FBF8F4;z-index:99999;transition:opacity .35s ease}

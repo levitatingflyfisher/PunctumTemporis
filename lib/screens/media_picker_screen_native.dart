@@ -435,7 +435,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           style: AppTheme.monoFont(
                             fontSize: 10,
                             color:
-                                theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                AppTheme.dimInk(theme),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -449,7 +449,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           child: Icon(Icons.close,
                               size: 14,
                               color:
-                                  theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+                                  AppTheme.dimInk(theme)),
                         ),
                       IconButton(
                         icon: Icon(Icons.chevron_right,
@@ -504,7 +504,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                           'MEDIA PERMISSION REQUIRED',
                           style: AppTheme.pixelFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: AppTheme.dimInk(theme),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -519,7 +519,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                             style: AppTheme.pixelFont(
                               fontSize: 12,
                               color:
-                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                  AppTheme.dimInk(theme),
                             ),
                           ),
                         )
@@ -562,8 +562,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                                     'NEARBY: ${_nearbyWindowLabel(targetDateTime)}',
                                     style: AppTheme.pixelFont(
                                       fontSize: 10,
-                                      color: theme.colorScheme.onSurface
-                                          .withValues(alpha: 0.5),
+                                      color: AppTheme.dimInk(theme),
                                     ),
                                   ),
                                 ),
@@ -604,8 +603,7 @@ class _MediaPickerScreenState extends State<MediaPickerScreen> {
                                       : 'NO MEDIA FROM ${DateFormat('MMM d').format(DateTime.parse(widget.targetDate)).toUpperCase()}',
                                   style: AppTheme.pixelFont(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.5),
+                                    color: AppTheme.dimInk(theme),
                                   ),
                                 ),
                               ),

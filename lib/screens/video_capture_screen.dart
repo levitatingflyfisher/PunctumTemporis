@@ -10,6 +10,7 @@ import '../models/clip.dart';
 import '../widgets/crt_effects.dart';
 import '../widgets/record_button.dart';
 import '../utils/location_util.dart';
+import '../widgets/location_notice.dart';
 import '../services/face_service.dart';
 import '../platform/file_storage.dart';
 import '../widgets/error_snack_bar.dart';
@@ -228,6 +229,11 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
 
     try {
       // Capture GPS in parallel with video processing
+      // The first save that can ask for location: the one-time notice
+      // above Save has done its job.
+      if (widget.storageService.getCaptureLocation()) {
+        widget.storageService.setLocationNoticeShown();
+      }
       final locationFuture = widget.storageService.getCaptureLocation()
           ? LocationUtil.getCurrentLocation()
           : Future.value(null);
@@ -697,6 +703,8 @@ class _VideoCaptureScreenState extends State<VideoCaptureScreen>
           const SizedBox(height: 16),
         ],
 
+        // Before the first save that can ask for location: what it adds.
+        LocationNotice(storageService: widget.storageService),
         // Action buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

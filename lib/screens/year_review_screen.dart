@@ -84,7 +84,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
               _buildHeatmap(theme),
               const SizedBox(height: 24),
 
-              // Streak summary below heatmap
+              // Heatmap legend
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Row(
@@ -103,8 +103,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     Text('Less',
                         style: AppTheme.monoFont(
                             fontSize: 9,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5))),
+                            color: AppTheme.dimInk(theme))),
                     const SizedBox(width: 4),
                     for (final opacity in [0.3, 0.6, 1.0])
                       Padding(
@@ -125,26 +124,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     Text('More',
                         style: AppTheme.monoFont(
                             fontSize: 9,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5))),
-                    const Spacer(),
-                    Text(
-                      'STREAK: $longestStreak',
-                      style: AppTheme.monoFont(
-                        fontSize: 10,
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'RATE: ${captureRate.toStringAsFixed(0)}%',
-                      style: AppTheme.monoFont(
-                        fontSize: 10,
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                            color: AppTheme.dimInk(theme))),
+                    // Streak and rate are stated once, in Statistics.
                   ],
                 ),
               ),
@@ -203,6 +184,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                       children: [
                         Icon(Icons.videocam_off,
                             size: 48,
+                            // contrast-exempt: decorative empty-state glyph
                             color: theme.colorScheme.onSurface
                                 .withValues(alpha: 0.3)),
                         const SizedBox(height: 16),
@@ -210,8 +192,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                           'NO CLIPS FOR $_selectedYear',
                           style: AppTheme.pixelFont(
                             fontSize: 10,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: AppTheme.dimInk(theme),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -219,8 +200,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                           'Start capturing to see your year in review!',
                           style: AppTheme.monoFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.4),
+                            color: AppTheme.dimInk(theme),
                           ),
                         ),
                       ],
@@ -302,9 +282,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
     final totalCells = startWeekday + totalDays;
     final numWeeks = (totalCells / 7).ceil();
 
-    const cellSize = 12.0;
-    const cellGap = 2.0;
-    const labelWidth = 20.0;
+    const weekdayLabelWidth = 20.0;
 
     final monthLabels = [
       'J',
@@ -324,7 +302,19 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
 
     return RetroCard(
       padding: const EdgeInsets.all(12),
-      child: Column(
+      // The whole year arrives at once: the cell size comes from the width
+      // (at most 12), so nothing scrolls sideways past May on a phone.
+      child: LayoutBuilder(builder: (context, constraints) {
+       // Weekday letters need a row at least as tall as they are; on a
+       // phone the rows are a few pixels, so the letters give way.
+       final showWeekdays =
+           (constraints.maxWidth - weekdayLabelWidth) / numWeeks >= 11;
+       final labelWidth = showWeekdays ? weekdayLabelWidth : 0.0;
+       final pitch =
+           ((constraints.maxWidth - labelWidth) / numWeeks).clamp(3.0, 14.0);
+       final cellGap = pitch >= 7 ? 2.0 : 1.0;
+       final cellSize = pitch - cellGap;
+       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Month labels row
@@ -332,8 +322,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
             children: [
               SizedBox(width: labelWidth),
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                child: ClipRect(
                   child: SizedBox(
                     width: numWeeks * (cellSize + cellGap),
                     height: 14,
@@ -351,8 +340,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                             monthLabels[month],
                             style: AppTheme.monoFont(
                               fontSize: 9,
-                              color: theme.colorScheme.onSurface
-                                  .withValues(alpha: 0.5),
+                              color: AppTheme.dimInk(theme),
                             ),
                           ),
                         );
@@ -369,6 +357,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Weekday labels
+              if (showWeekdays)
               Column(
                 children: List.generate(7, (i) {
                   return SizedBox(
@@ -380,8 +369,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                         weekdayLabels[i],
                         style: AppTheme.monoFont(
                           fontSize: 9,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
+                          color: AppTheme.dimInk(theme),
                         ),
                       ),
                     ),
@@ -390,9 +378,10 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
               ),
               // Grid
               Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                child: Align(
+                  alignment: Alignment.centerLeft,
                   child: _HeatmapGrid(
+                    key: const ValueKey('heatmap-grid'),
                     year: _selectedYear,
                     storageService: widget.storageService,
                     numWeeks: numWeeks,
@@ -402,6 +391,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     cellGap: cellGap,
                     primaryColor: theme.colorScheme.primary,
                     emptyColor:
+                        // contrast-exempt: an empty heatmap cell, not text
                         theme.colorScheme.onSurface.withValues(alpha: 0.05),
                   ),
                 ),
@@ -409,17 +399,22 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
             ],
           ),
         ],
-      ),
+       );
+      }),
     );
   }
 
   Widget _buildMonthlyChart(ThemeData theme) {
+    // Days captured each month on one fixed scale: a full month is the
+    // full bar every year, so a bar's length means the same thing across
+    // months and years (it used to rescale to the fullest month).
     final monthlyCounts = List.generate(12, (i) {
+      final m = (i + 1).toString().padLeft(2, '0');
       return widget.storageService
-          .getClipsForMonth(_selectedYear, i + 1)
+          .uniqueDatesInRange('$_selectedYear-$m-01', '$_selectedYear-$m-31')
           .length;
     });
-    final maxCount = monthlyCounts.reduce((a, b) => a > b ? a : b);
+    const maxCount = 31;
     final monthNames = [
       'JAN',
       'FEB',
@@ -439,14 +434,24 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
 
     return RetroCard(
       padding: const EdgeInsets.all(12),
-      child: SizedBox(
+      child: Column(
+       crossAxisAlignment: CrossAxisAlignment.start,
+       children: [
+        Text(
+          'Days captured each month, out of 31',
+          style: AppTheme.monoFont(
+            fontSize: 11,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
         height: maxBarHeight + 40,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: List.generate(12, (i) {
             final count = monthlyCounts[i];
-            final barHeight =
-                maxCount > 0 ? (count / maxCount) * maxBarHeight : 0.0;
+            final barHeight = (count / maxCount) * maxBarHeight;
             return Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -461,6 +466,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     ),
                   const SizedBox(height: 2),
                   Container(
+                    key: ValueKey('month-bar-$i'),
                     height: barHeight,
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
@@ -477,7 +483,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
                     monthNames[i],
                     style: AppTheme.monoFont(
                       fontSize: 8,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                     ),
                   ),
                 ],
@@ -485,6 +491,8 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
             );
           }),
         ),
+      ),
+       ],
       ),
     );
   }
@@ -507,7 +515,7 @@ class _YearReviewScreenState extends State<YearReviewScreen> {
         _StatCard(label: 'DAYS', value: daysCaptured.toString(), theme: theme),
         _StatCard(
             label: 'RATE',
-            value: '${captureRate.toStringAsFixed(1)}%',
+            value: '${captureRate.toStringAsFixed(0)}%',
             theme: theme),
         _StatCard(
             label: 'STREAK', value: longestStreak.toString(), theme: theme),
@@ -647,10 +655,10 @@ class _StatCard extends StatelessWidget {
       width: (MediaQuery.of(context).size.width - 48) / 3,
       child: Container(
         padding: const EdgeInsets.all(12),
+        // Structure from the neutral ramp, not an accent border: the
+        // number is the one coloured thing (audit finding 10).
         decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
-          ),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.05), // contrast-exempt: a fill, not text
           borderRadius: AppTheme.isModern ? BorderRadius.circular(8) : null,
         ),
         child: Column(
@@ -667,7 +675,7 @@ class _StatCard extends StatelessWidget {
               label,
               style: AppTheme.monoFont(
                 fontSize: 9,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
           ],
@@ -689,6 +697,7 @@ class _HeatmapGrid extends StatelessWidget {
   final Color emptyColor;
 
   const _HeatmapGrid({
+    super.key,
     required this.year,
     required this.storageService,
     required this.numWeeks,

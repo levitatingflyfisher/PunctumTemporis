@@ -67,7 +67,7 @@ class CaptureOption extends StatelessWidget {
                     subtitle,
                     style: AppTheme.monoFont(
                       fontSize: 12,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                     ),
                   ),
                 ],

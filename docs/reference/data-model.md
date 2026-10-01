@@ -86,7 +86,8 @@ Sibling media directories (not in the JSON): `clips/`, `thumbnails/`,
 `faces/<name>.jpg`. Settings live in `shared_preferences`, not here (theme mode,
 accent color, visual style, CRT toggle, date format, capture-location toggle,
 location-overlay toggle, reminder enabled/time, pinned tags/locations, onboarding
-complete, celebrated milestones, clips-migrated flag).
+complete, celebrated milestones, clips-migrated flag, and whether the one-time
+location notice has done its job).
 
 ## Feature status
 

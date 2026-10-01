@@ -21,8 +21,6 @@ final _url = RegExp(r'''https?://[^\s"'`)\\]+''');
 const _neverFetched = {
   // In an emscripten error message about dynamic linking.
   'https://emscripten.org/docs/compiling/Dynamic-Linking.html',
-  // Source credit in comments (index.html, coi-serviceworker.js).
-  'https://github.com/gzuidhof/coi-serviceworker',
   // Flutter template comment about <base href> in index.html.
   'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base',
   // Placeholder links in web/version.json, which nothing in lib/ reads

@@ -16,6 +16,11 @@ class SettingsScreen extends StatefulWidget {
   final void Function(int mode, Color accent) onThemeChanged;
   final VoidCallback? onVisualStyleChanged;
 
+  /// Says, at the switch, what location capture adds and where it stays.
+  static const locationPurpose =
+      'Adds the nearest town to each new clip, looked up on this phone. '
+      'The app never sends it anywhere.';
+
   const SettingsScreen({
     super.key,
     required this.storageService,
@@ -269,6 +274,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Capture location
               _buildSettingTile(
                 label: 'Capture Location',
+                child: Text(
+                  SettingsScreen.locationPurpose,
+                  style: AppTheme.monoFont(
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                ),
                 trailing: Switch(
                   value: _captureLocation,
                   onChanged: (value) {
@@ -467,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   widget.storageService.clipsPath.split('/').last,
                   style: AppTheme.monoFont(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
               ),
@@ -516,7 +528,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'ONE SECOND A DAY',
                   style: AppTheme.pixelFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
               ),
@@ -528,7 +540,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'FOSS • LOCAL-FIRST • NO TELEMETRY',
                   style: AppTheme.monoFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
               ),
@@ -563,10 +575,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Container(
         padding: const EdgeInsets.all(16),
+        // Structure from the neutral ramp, not an accent border (audit
+        // finding 10).
         decoration: BoxDecoration(
-          border: Border.all(
-            color: theme.colorScheme.primary.withValues(alpha: 0.2),
-          ),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.05), // contrast-exempt: a fill, not text
           borderRadius: AppTheme.isHearth ? BorderRadius.circular(12) : null,
         ),
         child: Column(

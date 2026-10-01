@@ -586,6 +586,13 @@ class StorageService {
   Future<void> setCaptureLocation(bool enabled) =>
       _prefs.setBool(_captureLocationKey, enabled);
 
+  /// Whether the one-time line before the first location prompt has done
+  /// its job (the first save that could ask has happened).
+  bool getLocationNoticeShown() =>
+      _prefs.getBool('location_notice_shown') ?? false;
+  Future<void> setLocationNoticeShown() =>
+      _prefs.setBool('location_notice_shown', true);
+
   bool getIncludeLocationOverlay() =>
       _prefs.getBool(_includeLocationOverlayKey) ?? true;
   Future<void> setIncludeLocationOverlay(bool enabled) =>

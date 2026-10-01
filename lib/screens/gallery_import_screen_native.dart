@@ -337,7 +337,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                 widget.date,
                 style: AppTheme.monoFont(
                   fontSize: 10,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: AppTheme.dimInk(Theme.of(context)),
                 ),
               ),
             ],
@@ -386,7 +386,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
             'SELECT MEDIA FOR ${widget.date}',
             style: AppTheme.monoFont(
               fontSize: 14,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              color: AppTheme.dimInk(theme),
             ),
           ),
           const SizedBox(height: 32),
@@ -420,7 +420,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
               'CANCEL IMPORT',
               style: AppTheme.monoFont(
                 fontSize: 11,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                color: AppTheme.dimInk(theme),
               ),
             ),
           ),
@@ -450,7 +450,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                 'This photo will be converted to a ${_selectedDuration.toStringAsFixed(1)}s video.',
                 style: AppTheme.monoFont(
                   fontSize: 12,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: AppTheme.dimInk(theme),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -594,7 +594,7 @@ class _GalleryImportScreenState extends State<GalleryImportScreen> {
                   'Total: ${_formatTime(_videoDuration!)}',
                   style: AppTheme.monoFont(
                     fontSize: 11,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: AppTheme.dimInk(theme),
                   ),
                 ),
 

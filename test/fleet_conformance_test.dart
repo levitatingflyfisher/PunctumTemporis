@@ -10,9 +10,11 @@ import 'package:one_second_a_day/theme/app_theme.dart';
 
 void main() => runFleetConformance(FleetAppConfig(
       appId: 'punctumtemporis',
-      // Bundles its own type, so nothing falls back to a web font — a
-      // character the bundled families cannot draw is a box on a
-      // real phone. C7 sweeps lib/ for any.
+      // Bundles its own type for the app's own words, so C7 sweeps lib/ for
+      // any character the bundled families cannot draw. Place names are the
+      // exception (see assetTextExemptions): they rely on the engine's
+      // fallback fonts, the phone's system fonts natively and the shared
+      // Noto mirror on the web.
       // C8: a bare IconButton.filled/.filledTonal would paint its glyph the
       // color of its own fill under ohStyle's ambient iconTheme. Filled
       // icon buttons must come from OhIconButton.
@@ -21,6 +23,9 @@ void main() => runFleetConformance(FleetAppConfig(
         // points CanvasKit and the engine's fallback fonts at this origin.
         FleetCheck.c13WebSelfHosted,
         ...FleetAppConfig.withBundledFonts,
+        // C7-assetText: C7 over the bundled data files, which lib/'s sweep
+        // never reads (the cities list's names are drawn on clips).
+        FleetCheck.c7AssetText,
         FleetCheck.c8IconButtons,
         // C10: no caught exception rendered in a Text/TextSpan/errorText.
         // PT's screens report through _showError(String) helpers, which C10
@@ -53,6 +58,20 @@ void main() => runFleetConformance(FleetAppConfig(
           FleetAccent.dark(preset.value.toARGB32(), label: preset.key),
         ],
       ],
+      assetTextLatinFallback: {
+        // Drawn, and on purpose beyond the bundled faces: the place names'
+        // Latin Extended and Vietnamese letters (İ ş ā ầ ơ ế ...). Bundling
+        // fonts for every name would cost megabytes; nothing in lib/ sets
+        // fontFamilyFallback, so the engine falls back to the phone's system
+        // fonts natively and to the shared Noto mirror the web bootstrap
+        // points at (C13). Every other character in the file is still
+        // checked. test/platform/place_name_fallback_test.dart pins the two
+        // conditions. Batch-2 ruling.
+        'assets/data/cities.csv':
+            'place names draw their extended Latin letters through the '
+                'engine\'s fallback fonts (system fonts natively, the shared '
+                'Noto mirror on the web)',
+      },
       primaryActionScreens: {
         'CalendarScreen',
         'CompilationScreen',

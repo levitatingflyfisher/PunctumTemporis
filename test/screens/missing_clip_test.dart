@@ -70,6 +70,20 @@ void main() {
     });
   }
 
+  for (final embedded in [false, true]) {
+    final where = embedded ? 'embedded in Day View' : 'on its own';
+    testWidgets('a missing file offers no Share or Trim ($where)',
+        (tester) async {
+      await pumpPreview(tester, embedded: embedded);
+      // There is no file to share or cut; Delete (Remove) stays.
+      expect(find.byTooltip('Share clip'), findsNothing);
+      expect(find.text('Share'), findsNothing);
+      expect(find.text('TRIM'), findsNothing);
+      expect(find.byIcon(Icons.content_cut), findsNothing);
+      expect(find.byTooltip('Delete clip'), findsOneWidget);
+    });
+  }
+
   testWidgets('the day is still drawn around the missing video',
       (tester) async {
     await pumpPreview(tester);

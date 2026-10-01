@@ -216,7 +216,7 @@ class _RetroDateRangePickerDialogState
                     onTap: () => Navigator.pop(context),
                     child: Icon(
                       Icons.close,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: AppTheme.dimInk(theme),
                       size: 20,
                     ),
                   ),
@@ -281,7 +281,7 @@ class _RetroDateRangePickerDialogState
                           _displayedMonth.year.toString(),
                           style: AppTheme.monoFont(
                             fontSize: 12,
-                            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                            color: AppTheme.dimInk(theme),
                           ),
                         ),
                       ],
@@ -308,8 +308,7 @@ class _RetroDateRangePickerDialogState
                               d,
                               style: AppTheme.monoFont(
                                 fontSize: 11,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5),
+                                color: AppTheme.dimInk(theme),
                               ),
                             ),
                           ),
@@ -389,7 +388,7 @@ class _RetroDateRangePickerDialogState
                             style: AppTheme.monoFont(
                               fontSize: 12,
                               color:
-                                  theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                  AppTheme.dimInk(theme),
                             ),
                           ),
                         ),
@@ -412,6 +411,7 @@ class _RetroDateRangePickerDialogState
                             border: Border.all(
                               color: _startDate != null && _endDate != null
                                   ? theme.colorScheme.primary
+                                  // contrast-exempt: disabled: no range chosen yet
                                   : theme.colorScheme.onSurface
                                       .withValues(alpha: 0.2),
                             ),
@@ -423,6 +423,7 @@ class _RetroDateRangePickerDialogState
                               fontWeight: FontWeight.bold,
                               color: _startDate != null && _endDate != null
                                   ? theme.colorScheme.primary
+                                  // contrast-exempt: disabled: no range chosen yet
                                   : theme.colorScheme.onSurface
                                       .withValues(alpha: 0.2),
                             ),
@@ -536,6 +537,7 @@ class _RetroDateRangePickerDialogState
           day.toString(),
           style: AppTheme.monoFont(
             fontSize: 11,
+            // contrast-exempt: disabled: a day outside this month
             color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
           ),
         ),
@@ -617,10 +619,11 @@ class _RetroDateRangePickerDialogState
                       style: AppTheme.monoFont(
                         fontSize: 11,
                         color: isFuture
+                            // contrast-exempt: disabled: a future day
                             ? theme.colorScheme.onSurface.withValues(alpha: 0.15)
                             : hasClip
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                : AppTheme.dimInk(theme),
                         fontWeight: isStart || isEnd
                             ? FontWeight.bold
                             : FontWeight.normal,

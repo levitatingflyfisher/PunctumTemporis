@@ -256,8 +256,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   '${clip.duration?.toStringAsFixed(1) ?? "1.0"}s${clip.locationLabel != null ? " · ${clip.locationLabel}" : ""}',
                                   style: AppTheme.monoFont(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.5),
+                                    color: AppTheme.dimInk(theme),
                                   ),
                                 ),
                               ],
@@ -470,7 +469,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'TAGS',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
             const SizedBox(height: 4),
@@ -522,7 +521,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'LOCATIONS',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
             const SizedBox(height: 4),
@@ -586,7 +585,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               'PEOPLE',
               style: AppTheme.pixelFont(
                 fontSize: 10,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                color: AppTheme.dimInk(theme),
               ),
             ),
             const SizedBox(height: 4),
@@ -651,7 +650,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 'CLEAR FILTERS',
                 style: AppTheme.monoFont(
                   fontSize: 11,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: AppTheme.dimInk(theme),
                 ),
               ),
             ),
@@ -839,8 +838,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               textAlign: TextAlign.center,
                               style: AppTheme.monoFont(
                                 fontSize: 14,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5),
+                                color: AppTheme.dimInk(theme),
                               ),
                             ),
                           ],
@@ -895,8 +893,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                         d,
                                         style: AppTheme.monoFont(
                                           fontSize: 12,
-                                          color: theme.colorScheme.onSurface
-                                              .withValues(alpha: 0.5),
+                                          color: AppTheme.dimInk(theme),
                                         ),
                                       ),
                                     ),
@@ -1135,9 +1132,13 @@ class _DayCell extends StatelessWidget {
         width: 2,
       );
     } else if (isToday) {
+      // Today is marked by the bar under the numeral (below), not a border:
+      // a border means "captured", and today must stay marked once it is.
       bgColor = Colors.transparent;
       textColor = theme.colorScheme.primary;
-      border = Border.all(color: theme.colorScheme.primary, width: 2);
+      if (isSelected) {
+        border = Border.all(color: theme.colorScheme.secondary, width: 2);
+      }
     } else if (isSelected) {
       bgColor = Colors.transparent;
       textColor = theme.colorScheme.secondary;
@@ -1147,7 +1148,7 @@ class _DayCell extends StatelessWidget {
       );
     } else {
       bgColor = Colors.transparent;
-      textColor = theme.colorScheme.onSurface.withValues(alpha: 0.6);
+      textColor = AppTheme.dimInk(theme);
     }
 
     return GestureDetector(
@@ -1180,14 +1181,41 @@ class _DayCell extends StatelessWidget {
                   ),
                 ),
               ),
+              // Today: a bar under the numeral, a shape rather than a colour,
+              // drawn whether or not the day is captured.
+              if (isToday)
+                Positioned(
+                  left: 11,
+                  right: 11,
+                  bottom: 4,
+                  child: Semantics(
+                    label: 'Today',
+                    child: Container(
+                      key: const ValueKey('today-mark'),
+                      height: 3,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+              // The clip was filmed on another day than the one it is filed
+              // under (an import): a named glyph, explained in the clip view.
               if (hasClip && clip!.hasDateMismatch)
                 Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    color: Colors.amber,
+                  top: -4,
+                  left: -4,
+                  child: Semantics(
+                    label: 'Filmed on another day',
+                    excludeSemantics: true,
+                    child: Container(
+                      key: const ValueKey('camera-date-flag'),
+                      padding: const EdgeInsets.all(1),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.history,
+                          size: 12, color: theme.colorScheme.onSurface),
+                    ),
                   ),
                 ),
               // Multi-clip count badge
@@ -1253,7 +1281,7 @@ class _StatItem extends StatelessWidget {
             textAlign: TextAlign.center,
             style: AppTheme.monoFont(
               fontSize: 11,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              color: AppTheme.dimInk(theme),
             ),
           ),
         ),

@@ -15,24 +15,15 @@ flutter build web --release --base-href "/<path>/"
 Use `--base-href` to match where the app is served (e.g. `"/PunctumTemporis/"`
 for a GitHub Pages project site, or `"/"` for a root domain).
 
-## The one thing that will bite you: cross-origin isolation
+## Cross-origin isolation: not needed
 
-`ffmpeg.wasm` uses `SharedArrayBuffer` for multi-threaded decoding. Browsers only
-expose `SharedArrayBuffer` on a **cross-origin-isolated** page, which requires two
-response headers on the document:
-
-```
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
-```
-
-On a host where you can't set headers (e.g. GitHub Pages), the app ships
-**`web/coi-serviceworker.js`** (from the `coi-serviceworker` project, MIT), loaded
-at the top of `web/index.html`. It installs a service worker that injects the
-COOP/COEP headers client-side, enabling `SharedArrayBuffer` without server config.
-If video processing on web fails with a `SharedArrayBuffer is not defined` error,
-this is almost always the cause: confirm the service worker registered and the
-page reports `crossOriginIsolated === true`.
+The bundled `ffmpeg.wasm` core is the **single-threaded** build
+(`ffmpeg-core.js` + `ffmpeg-core.wasm`, no pthread worker), so it does not
+use `SharedArrayBuffer` and the page needs no COOP/COEP headers. Any static
+host works as is, GitHub Pages included. (An earlier `coi-serviceworker.js`
+meant to add those headers never ran, because of a syntax error, and was
+removed; export worked without it.) Switching to the multi-threaded core
+would bring the header requirement back.
 
 The ffmpeg.wasm assets themselves are **bundled** under `web/ffmpeg/`
 (`ffmpeg.js`, its worker `814.ffmpeg.js`, `ffmpeg-core.js`, `ffmpeg-core.wasm`) —
@@ -69,8 +60,8 @@ Two workflows exist:
   branch (triggers on `pwa-development`, or manual dispatch).
 - **Cloudflare Pages** — `.github/workflows/deploy-pwa-cloudflare.yml`.
 
-For any host, ensure the deployed site either sets the COOP/COEP headers directly
-or serves the bundled `coi-serviceworker.js` (the default).
+No special headers are needed on any host (see "Cross-origin isolation"
+above).
 
 ## Web feature parity checklist
 

@@ -63,7 +63,7 @@ class _MetadataSnapshotsSectionState extends State<MetadataSnapshotsSection> {
             'restore.',
             style: AppTheme.monoFont(
               fontSize: 12,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              color: AppTheme.dimInk(theme),
             ),
           );
         }
@@ -95,8 +95,7 @@ class _MetadataSnapshotsSectionState extends State<MetadataSnapshotsSection> {
                                   entry.createdAt, DateTime.now()),
                               style: AppTheme.monoFont(
                                 fontSize: 11,
-                                color: theme.colorScheme.onSurface
-                                    .withValues(alpha: 0.5),
+                                color: AppTheme.dimInk(theme),
                               ),
                             ),
                           ],
@@ -111,7 +110,7 @@ class _MetadataSnapshotsSectionState extends State<MetadataSnapshotsSection> {
                       IconButton(
                         icon: Icon(Icons.delete_outline,
                             color:
-                                theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                                AppTheme.dimInk(theme),
                             size: 20),
                         tooltip: 'Delete snapshot',
                         onPressed: () => _confirmDelete(context, entry),
